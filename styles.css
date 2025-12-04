@@ -880,3 +880,107 @@ html, body { width:100%; overflow-x: hidden; } /* prevent accidental horizontal 
   .site-header { max-width: calc(100% - 28px) !important; margin: 0 auto; padding: 10px 14px !important; border-radius:14px; }
   .container { max-width: calc(100% - 28px) !important; margin-left:auto; margin-right:auto; }
 }
+
+/* ---------- Small-screen safety net (<=500px) ---------- */
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* prevents accidental horizontal scroll */
+}
+
+/* Tighter global gutters on small screens */
+@media (max-width:500px) {
+  body {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Container and header match same gutters so edges align */
+  .site-header,
+  .container,
+  .site-footer {
+    max-width: calc(100% - 24px) !important;
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Make header slightly more compact */
+  .site-header {
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Keep header-inner in one row and avoid wrapping that pushes layout */
+  .header-inner {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  /* Brand sizing to avoid accidental wraps */
+  .brand .brand-name {
+    font-size: 15px !important;
+    line-height: 1.05 !important;
+  }
+  .brand .brand-sub { font-size: 11px !important; opacity: .9; }
+
+  /* Hamburger pinned to right */
+  #mobileHamburger {
+    margin-left: 8px !important;
+    margin-right: 0 !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  /* Hero: reduce padding and force internal stacking so it never exceeds container */
+  .hero {
+    padding: 18px !important;
+    border-radius: 16px !important;
+  }
+  .hero-grid { gap: 12px !important; align-items: flex-start !important; }
+
+  /* Avatar and CTAs scale down/stack to avoid overflow */
+  .avatar { min-width: 48px !important; min-height: 48px !important; font-size: 14px !important; }
+  .cta-row { flex-wrap: wrap !important; gap: 10px !important; }
+  .cta-row .btn { flex: 1 1 auto !important; min-width: 0 !important; }
+
+  /* Prevent hero glow from causing horizontal overflow */
+  .hero::before { right: -40px !important; width: 320px !important; }
+
+  /* Project grid: smaller cards that wrap nicely */
+  .projects-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  /* Cards: reduce padding so they fit */
+  .card, .project { padding: 12px !important; }
+
+  /* Reduce left/right bleed from any absolute elements */
+  .site-header, .container, .hero { overflow: visible; -webkit-overflow-scrolling: touch; }
+
+  /* Nav panel: keep centered and full width cap */
+  .site-header.nav-open .nav {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 28px) !important;
+    max-width: 420px !important;
+    padding: 12px !important;
+  }
+
+  /* Reduce shadow & clipping on small screens */
+  .site-header, .hero, .card {
+    box-shadow: 0 8px 22px rgba(0,0,0,0.5) !important;
+  }
+}
+
+/* Extra safety for very tall/skinny viewports */
+@media (max-width:420px) {
+  .cta-row .btn { padding: 10px 12px !important; font-size: 14px !important; }
+  .brand .brand-name { font-size: 14px !important; }
+  .projects-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important; }
+}
