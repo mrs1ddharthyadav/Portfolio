@@ -351,3 +351,32 @@ async function loadAndApply(){
   // Init
   loadAndApply();
 })();
+
+/* ---------- Page loader hide logic ---------- */
+(function(){
+  const loader = document.getElementById('pageLoader');
+  if(!loader) return;
+
+  // Helper to remove loader with fade
+  function hideLoader() {
+    if (!loader) return;
+    loader.classList.add('hidden');
+    // completely remove after transition to keep DOM clean
+    setTimeout(()=>{ try{ loader.remove(); }catch(e){} }, 600);
+  }
+
+  // Hide on full load
+  window.addEventListener('load', function(){
+    // slight delay to allow user to perceive animation (optional)
+    setTimeout(hideLoader, 250);
+  });
+
+  // Safety fallback: if load never fires, hide after 6s
+  setTimeout(function(){
+    if(document.body && !loader.classList.contains('hidden')) hideLoader();
+  }, 6000);
+
+  // If you have heavy async content injected via JS, call: document.dispatchEvent(new Event('site-ready'))
+  // to hide the loader earlier (optional).
+  document.addEventListener('site-ready', hideLoader);
+})();
