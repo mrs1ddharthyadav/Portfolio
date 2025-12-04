@@ -984,3 +984,88 @@ html, body {
   .brand .brand-name { font-size: 14px !important; }
   .projects-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important; }
 }
+
+/* ===== loader: crisp SY puck with rim + cyan halo (matches reference) ===== */
+:root{
+  --loader-size: 96px;
+  --loader-inner-dark: rgba(4,7,13,0.96);      /* puck center */
+  --loader-ring: rgba(255,255,255,0.045);      /* subtle rim */
+  --loader-halo: rgba(90,200,255,0.16);        /* cyan glow */
+  --loader-text: #eaf7ff;                      /* SY color */
+  --loader-card-bg: rgba(6,9,16,0.45);         /* loader inner card */
+}
+
+/* loader container (card) */
+.page-loader .loader-inner {
+  background: linear-gradient(180deg, rgba(8,12,20,0.42), rgba(4,7,13,0.4)) !important;
+  border: 1px solid rgba(255,255,255,0.03) !important;
+  padding: 24px 26px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  width: min(420px, 86vw);
+  max-width: 86vw;
+  text-align: center;
+}
+
+/* CRISP puck */
+.page-loader .loader-avatar{
+  width: var(--loader-size) !important;
+  height: var(--loader-size) !important;
+  min-width: var(--loader-size) !important;
+  min-height: var(--loader-size) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  position:relative !important;
+  overflow:visible !important;
+  background: radial-gradient(circle at 35% 25%, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 7%, rgba(10,14,22,0.9) 35%, var(--loader-inner-dark) 65%) !important;
+  color: var(--loader-text) !important;
+  font-weight:800 !important;
+  font-size:28px !important;
+  -webkit-font-smoothing:antialiased !important;
+  -moz-osx-font-smoothing:grayscale !important;
+  transform: translateZ(0);
+  animation: loader-jump 1.2s cubic-bezier(.2,.8,.2,1) infinite;
+  box-shadow:
+    /* faint inner sheen */ inset 0 -6px 10px rgba(255,255,255,0.02),
+    /* thin bright rim */ 0 0 0 2px var(--loader-ring),
+    /* outer soft halo */ 0 12px 40px var(--loader-halo);
+}
+
+/* thin outer ring highlight (subtle) */
+.page-loader .loader-avatar::before{
+  content:"";
+  position:absolute;
+  inset: -8px;
+  border-radius: 999px;
+  pointer-events:none;
+  /* soft darker ring to read on dark background */
+  box-shadow: 0 0 0 6px rgba(0,0,0,0.45);
+  z-index:0;
+}
+
+/* ensure the SY text sits above pseudo-elements and is crisp */
+.page-loader .loader-avatar > * { position: relative; z-index: 2; }
+
+/* remove any inherited backdrop blur for loader only */
+.page-loader .loader-avatar::after { content:none !important; display:none !important; }
+
+/* loader text */
+.loader-title { color: var(--loader-text) !important; margin-top:12px; font-weight:700; font-size:18px; text-align:center; }
+.loader-sub   { color: rgba(235,245,255,0.82) !important; font-size:13px; margin-top:6px; }
+
+/* tighter card on phones */
+@media (max-width:420px){
+  :root{ --loader-size: 78px; }
+  .page-loader .loader-inner{ padding:18px; width: calc(100% - 36px); }
+  .page-loader .loader-avatar{ font-size:24px; }
+}
+
+/* keep your jump animation intact (tweak amplitude if needed) */
+@keyframes loader-jump {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
