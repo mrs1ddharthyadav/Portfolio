@@ -386,3 +386,22 @@ async function loadAndApply(){
     }
   }, 8000);
 })();
+
+// Mobile nav hamburger toggle (keeps header usable at tablet widths)
+(function(){
+  const header = document.querySelector('.site-header');
+  if(!header) return;
+  let btn = document.getElementById('mobileHamburger');
+  if(!btn){
+    btn = document.createElement('button');
+    btn.id = 'mobileHamburger';
+    btn.setAttribute('aria-label','Open navigation');
+    btn.innerHTML = '☰';
+    btn.className = 'btn small';
+    header.querySelector('.header-inner').appendChild(btn);
+  }
+  btn.addEventListener('click', () => {
+    header.classList.toggle('nav-open');
+    btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open')));
+  });
+})();
