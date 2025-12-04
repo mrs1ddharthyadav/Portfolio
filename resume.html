@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resume — Sangam Yadav</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+    <header class="site-header glass">
+    <div class="header-inner">
+      <a href="index.html" class="brand" style="text-decoration:none; color:inherit;">
+        <div class="avatar small">SY</div>
+        <div class="brand-text">
+          <div class="brand-name">Sangam Yadav</div>
+          <div class="brand-sub">QA Analyst • BCA Student</div>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a class="nav-link" href="/Portfolio/index.html">Home</a>
+        <a class="nav-link" href="/Portfolio/projects.html">Projects</a>
+        <a class="nav-link" href="/Portfolio/about.html">About</a>
+        <a class="nav-link" href="/Portfolio/contact.html">Contact</a>
+        <a class="btn small primary" id="downloadResumeHeader" href="Sangam_Yadav_Resume.pdf" download>Resume</a>
+        <button id="themeToggleBtn" class="btn small" title="Toggle light / dark" aria-pressed="false">
+          <span id="themeIcon" aria-hidden="true">🌞</span>
+          <span class="mini" style="margin-left:6px">Theme</span>
+        </button>
+      </nav>
+    </div>
+    
+  </header>
+
+  <main class="container">
+    <section class="glass hero">
+      <div style="display:flex;gap:20px;align-items:flex-start">
+        <div class="avatar" aria-hidden="true">SY</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:20px">Resume</div>
+          <div class="muted mini" style="margin-top:8px">Download a simple text-based resume or copy from the page below.</div>
+
+          <div class="cards" style="margin-top:18px">
+            <div class="card">
+              <pre class="mini muted" style="white-space:pre-wrap;margin:0">
+Sangam Yadav
+QA Analyst | BCA Student | Aspiring Developer
+
+Summary:
+- QA Analyst experienced in call audits, compliance reviews, and communication feedback.
+- Learning web-dev: HTML, CSS, JS and Python.
+
+Skills:
+HTML, CSS, JavaScript, Python, Excel, Power BI
+
+Education:
+BCA (in progress)
+
+Experience:
+- Call auditor & QA Analyst (details)
+              </pre>
+            </div>
+
+            <div class="card">
+              <div style="font-weight:700">How to use</div>
+              <div class="mini muted" style="margin-top:8px">
+                Click 'Download' in the header to download a text resume. Replace with your own PDF later, or host & link the PDF.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="glass card">
+        <div style="font-weight:700">Contact</div>
+        <div class="mini muted" style="margin-top:8px">your-email@example.com</div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer glass">
+    <div class="footer-inner">
+      <div class="footer-left">© <span id="year"></span> Sangam Yadav</div>
+      <div class="footer-right">
+        <a class="mini muted" href="/Portfolio/privacy.html">Privacy</a>
+        <a class="mini muted" href="/Portfolio/terms.html">Terms</a>
+        <a class="mini muted" id="linkedinFooter" href="www.linkedin.com/in/sangamyadavqa" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

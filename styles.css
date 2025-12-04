@@ -1,0 +1,374 @@
+/* ---------- Base & Utilities ---------- */
+:root{
+  --bg:#0b0d10;
+  --glass-strong: rgba(255,255,255,0.04);
+  --glass-mid: rgba(255,255,255,0.03);
+  --accent: linear-gradient(90deg,#6be4ff,#6a6aff);
+  --muted: rgba(255,255,255,0.6);
+  --card-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  --glass-border: rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(106,106,255,0.08), transparent),
+              radial-gradient(1000px 500px at 90% 90%, rgba(107,228,255,0.03), transparent),
+              var(--bg);
+  color: #e9eef6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:48px;
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+  min-height:100vh;
+}
+
+/* --- THEME TOKENS (prepend these to your existing styles.css) --- */
+:root{
+  --accent-a: #6be4ff;
+  --accent-b: #6a6aff;
+  --accent: linear-gradient(90deg,var(--accent-a),var(--accent-b));
+  --hero-glow: #6a6aff;
+  --bg: #071224;
+  --card-bg: rgba(255,255,255,0.02);
+  --text-main: #eaf7ff;
+  --muted: rgba(159,180,198,0.7);
+  --font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-size-base: 16px;
+  --font-size-heading: 22px;
+  --scale: 1;
+  --heading-color: var(--text-main);
+  --subheading-color: var(--muted);
+  --body-color: var(--text-main);
+  --btn-text: #071224;
+  --btn-bg: var(--accent-a);
+}
+
+/* Light theme override */
+.light-mode{
+  --bg:#f6f8fb;
+  --text-main:#071224;
+  --muted:rgba(0,0,0,0.6);
+  --card-bg: rgba(0,0,0,0.03);
+  --heading-color: var(--text-main);
+  --subheading-color: var(--muted);
+  --body-color: var(--text-main);
+  --btn-text: #ffffff;
+  --btn-bg: var(--accent-b);
+}
+
+/* Minimal mapping so existing classes pick tokens (non-invasive) */
+body{ background:var(--bg); color:var(--text-main); font-family:var(--font-family); font-size:var(--font-size-base); transform:scale(var(--scale)); transform-origin:top center; }
+.card{ background:var(--card-bg); }
+h1, .name{ color:var(--heading-color); }
+.subtitle, .muted{ color:var(--subheading-color); }
+p, .mini, .muted, .lead{ color:var(--body-color); }
+.btn.primary{ color:var(--btn-text) !important; background: var(--btn-bg) !important; border: none; }
+
+/* --- End of prepend snippet --- */
+
+/* NOTE: your original styles should remain below. If you replaced the full file,
+   copy your existing css rules below this block. */
+
+
+/* Header */
+.site-header{
+  position: relative;
+  z-index: 9999; /* ensures nav is always clickable */
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  border-radius:16px;
+  padding:10px 14px;
+}
+.header-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-text{line-height:1}
+.brand-name{font-weight:700}
+.brand-sub{font-size:12px;color:var(--muted)}
+.nav{display:flex;gap:12px;align-items:center}
+.nav-link{color:var(--muted);text-decoration:none;font-weight:600}
+.btn.small{padding:8px 10px;border-radius:10px;font-size:13px}
+
+#dayNightBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 6px 12px;
+  backdrop-filter: blur(10px);
+}
+
+
+/* ---------- Layout ---------- */
+.container{
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns: 1fr 380px;
+  gap:28px;
+  align-items:start;
+}
+
+/* ---------- Glass panel base ---------- */
+.glass{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid var(--glass-border);
+  border-radius:16px;
+  padding:20px;
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  box-shadow: var(--card-shadow);
+}
+
+/* ---------- Hero (left column) ---------- */
+.hero{
+  padding:36px;
+  border-radius:20px;
+  position:relative;
+  overflow:visible;
+}
+.hero-grid{
+  display:flex;
+  gap:20px;
+  align-items:center;
+}
+
+/* avatar */
+.avatar{
+  min-width:92px;
+  min-height:92px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:28px;
+  letter-spacing:0.6px;
+  color:#eaf7ff;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 18px rgba(106,106,255,0.08), inset 0 -6px 16px rgba(0,0,0,0.25);
+  position:relative;
+  overflow:hidden;
+}
+.avatar.small{min-width:42px;min-height:42px;font-size:14px;padding:6px}
+.avatar::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.name-title{display:flex;flex-direction:column}
+.name{font-size:20px;font-weight:700;letter-spacing:0.2px;margin-bottom:6px}
+.muted{color:var(--muted)}
+.subtitle{color:var(--muted);font-size:13px}
+.tagline{margin-top:18px;font-size:15px;color:#dfe9f8}
+
+/* CTAs */
+.cta-row{margin-top:18px;display:flex;gap:12px;align-items:center}
+.btn{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#eaf7ff;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition: transform .18s ease, box-shadow .18s}
+.btn:hover{ transform: translateY(-4px); box-shadow: 0 10px 30px rgba(106,106,255,0.06)}
+.btn.primary{background: var(--accent);background-size:200% 200%;border:none;color:#071224;box-shadow: 0 10px 30px rgba(106,106,255,0.18)}
+
+/* small meta */
+.meta{margin-top:18px;color:var(--muted);font-size:13px}
+
+/* ---------- Cards (skills / projects) ---------- */
+.cards{margin-top:26px;display:grid;gap:14px}
+.card{padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center;border:1px solid rgba(255,255,255,0.03);background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01))}
+.skill-list{display:flex;flex-wrap:wrap;gap:10px}
+.skill-pill{padding:8px 10px;border-radius:999px;font-weight:600;font-size:13px;background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+
+/* projects grid */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.project{padding:14px;border-radius:12px;position:relative;overflow:hidden;transition: transform .22s ease, box-shadow .22s}
+.project:hover{ transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.6)}
+.project .coming{font-size:13px;color:var(--muted)}
+.project .title{font-weight:700;margin-top:8px}
+
+/* right column */
+.side{position:sticky;top:48px;height:fit-content;display:flex;flex-direction:column;gap:14px}
+.contact-form label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+.contact-form input, .contact-form textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color: #eaf7ff;resize:vertical}
+.contact-actions{display:flex;gap:10px;margin-top:10px}
+
+/* footer */
+.site-footer{width:100%;max-width:1100px;margin:0 auto;border-radius:16px;padding:12px 14px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.footer-left{color:var(--muted)}
+.footer-right{display:flex;gap:12px;align-items:center}
+
+/* floating glow behind hero for premium depth */
+.hero::before{
+  content:'';
+  position:absolute;
+  width:420px;height:420px;
+  right:-120px;top:-80px;
+  background: radial-gradient(closest-side, rgba(106,106,255,0.12), transparent);
+  filter: blur(40px);
+  z-index:0;
+  transform:translateZ(0);
+}
+
+/* responsive */
+@media (max-width:980px){
+  .container{grid-template-columns: 1fr; padding:0}
+  body{padding:20px}
+  .side{position:static}
+  .header-inner{flex-direction:column;gap:10px;align-items:flex-start}
+  .nav{width:100%;justify-content:space-between}
+}
+
+/* subtle floating animation for cards */
+@keyframes floaty {
+  0% { transform: translateY(0px) }
+  50% { transform: translateY(-6px) }
+  100% { transform: translateY(0px) }
+}
+.avatar, .card, .project { animation: floaty 6s ease-in-out infinite; animation-delay: calc(var(--i,0) * 0.15s) }
+
+/* ---- Small token-based mappings (paste near the end of styles.css) ---- */
+
+/* Avatar (brand initials like "SY") */
+.brand .avatar,
+.avatar.large {
+  /* avatar text color controlled by --heading-color */
+  color: var(--heading-color) !important;
+}
+
+/* Main name / headings */
+.brand .brand-name,
+.h1,
+.name,
+.title {
+  color: var(--heading-color) !important;
+}
+
+/* Taglines and subtle text inside hero */
+.hero .muted,
+.hero .small,
+.tagline {
+  color: var(--subheading-color) !important;
+}
+
+/* CTA buttons & normal buttons text color (keeps btn background as-is) */
+.hero .btn,
+.cta-row .btn,
+.btn {
+  color: var(--btn-text) !important;
+}
+
+/* Ensure links / small text in header / footer are visible */
+a.mini, .mini {
+  color: var(--subheading-color) !important;
+}
+
+/* Inputs and card borders already use tokens; ensure admin area uses body token */
+.admin-sidebar, .admin-main, .card, .glass {
+  color: var(--body-color) !important;
+  border-color: var(--card-border) !important;
+}
+
+/* ---------- Fix: visible borders & pills in light mode ---------- */
+
+/* Base pill style (keeps dark look but works in light mode too) */
+.skill-pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1;
+  background: transparent;                 /* let token decide */
+  color: var(--body-color);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+}
+
+/* Card containers (cards, projects) should show token border & bg */
+.card,
+.project,
+.projects-grid .project {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: 10px;
+}
+
+/* In light-mode, add a subtle outer shadow and slightly stronger border so edges read */
+.light-mode .card,
+.light-mode .project,
+.light-mode .projects-grid .project {
+  box-shadow: 0 6px 18px rgba(10,10,10,0.04);
+  border: 1px solid var(--card-border);
+}
+
+/* Make sure the pills in the card also look crisp on light bg */
+.light-mode .skill-pill {
+  background: transparent; /* keeps it clean */
+  border: 1px solid var(--card-border);
+  color: var(--body-color);
+  box-shadow: none;
+}
+
+/* If you used a different class name for pills, also cover common variants */
+.pill, .tag, .skill-tag { 
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--body-color);
+}
+
+/* Ensure header / hero small text and avatar contrast */
+.light-mode .brand .avatar,
+.light-mode .avatar.large {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--heading-color) !important;
+}
+
+#themeToggleBtn,
+#themeToggleBtn span {
+  color: #ffffff !important;
+}
+
+
+
+
+/* ---------- Accessibility / contrast fixes (paste at end of styles.css) ---------- */
+
+/* Ensure card/project borders are always visible and use token */
+.card,
+.project,
+.site-header,
+.site-footer,
+.projects-grid .project,
+.admin-sidebar,
+.admin-main,
+.glass {
+  border-color: var(--card-border) !important;
+  background: var(--card-bg) !important;
+}
+
+/* Inputs / selects / textareas: clear border in light mode */
+input, textarea, select, .input {
+  border: 1px solid var(--control-border) !important;
+  background: transparent !important;
+  color: var(--body-color) !important;
+}
+
+/* Buttons: enforce readable border/contrast */
+.btn {
+  border: 1px solid var(--control-border) !important;
+  color: var(--btn-text) !important;
+  background: var(--btn-bg) !important;
+}
+

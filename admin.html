@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Site Admin — Theme + Text Controls</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+:root{
+  --admin-width:320px;
+  --preview-scale:1;
+  --accent: linear-gradient(90deg,#6be4ff,#6a6aff);
+  --hero-glow: #6a6aff;
+  --bg: #071224;
+  --muted: rgba(255,255,255,0.75);
+  --card-bg: rgba(255,255,255,0.03);
+  --glass-strong: rgba(255,255,255,0.04);
+  --glass-blur: 10px;
+  --text-main: #eaf7ff;
+  --font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-size: 16px;
+  --card-border: rgba(255,255,255,0.06);
+  --control-border: rgba(255,255,255,0.04);
+  --heading-color: var(--text-main);
+  --subheading-color: rgba(159,180,198,0.7);
+  --body-color: var(--text-main);
+  --btn-bg: #6be4ff;
+  --btn-text: #071224;
+}
+
+.light-mode{
+  --bg: #f6f8fb;
+  --muted: rgba(0,0,0,0.75);
+  --card-bg: rgba(255,255,255,0.98);
+  --glass-strong: rgba(0,0,0,0.06);
+  --text-main: #071224;
+  --card-border: rgba(0,0,0,0.12);
+  --control-border: rgba(0,0,0,0.12);
+  --heading-color: #071224;
+  --subheading-color: rgba(0,0,0,0.6);
+  --body-color: #071224;
+  --btn-bg: #0b6fff;
+  --btn-text: #ffffff;
+}
+
+/* Basic layout */
+body{margin:0;font-family:var(--font-family);font-size:var(--font-size);background:var(--bg);color:var(--body-color)}
+.admin-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:12px}
+.admin-shell{display:flex;gap:18px;min-height:calc(100vh - 76px);padding:18px}
+.admin-sidebar{width:var(--admin-width);min-width:180px;max-width:680px;position:relative;align-self:flex-start;padding:12px;border-radius:12px;background:var(--card-bg);border:1px solid var(--card-border)}
+.admin-main{flex:1;display:flex;flex-direction:column;gap:14px}
+.side-nav{display:flex;flex-direction:column;gap:8px}
+.side-nav button{background:transparent;border:1px solid var(--card-border);padding:8px 10px;border-radius:10px;color:var(--body-color);text-align:left;cursor:pointer}
+.side-nav button.active{background:var(--accent);color:var(--bg)}
+.panel{display:none}
+.panel.active{display:block}
+.grid-2{display:grid;grid-template-columns:1fr 480px;gap:16px}
+.card-mini{padding:12px;border-radius:10px;border:1px solid var(--card-border);background:var(--card-bg)}
+.field{margin-bottom:10px}
+.field label{display:block;font-weight:700;margin-bottom:6px;color:var(--heading-color)}
+.input, textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--control-border);background:transparent;color:var(--body-color)}
+.small{font-size:13px;color:var(--subheading-color)}
+.help{font-size:13px;color:var(--subheading-color);margin-top:6px}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap}
+.tool-btn{padding:6px 8px;border-radius:8px;border:1px solid var(--control-border);background:transparent;color:var(--body-color);cursor:pointer}
+.preview-pane{border-radius:12px;overflow:auto;border:1px solid var(--card-border);min-height:360px;padding:12px;background:linear-gradient(180deg, rgba(0,0,0,0.03), transparent)}
+.projects-list{display:flex;flex-direction:column;gap:8px}
+.project-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;border:1px solid var(--card-border);padding:8px;border-radius:8px;background:var(--card-bg)}
+.project-row .proj-title{flex:2 1 320px;min-width:260px;font-size:16px;padding:10px 8px}
+.project-row .proj-short{flex:0 0 140px;min-width:100px}
+.project-row .proj-img{flex:0 0 180px;min-width:120px}
+.project-row .proj-desc{width:100%;margin-top:8px;min-height:56px;font-size:14px;padding:8px}
+.img-preview{display:block;width:64px;height:64px;border-radius:8px;object-fit:cover;border:1px solid var(--card-border)}
+.actions{display:flex;gap:8px;margin-top:10px}
+.small-action{padding:8px 10px;border-radius:8px;border:1px solid var(--control-border);background:transparent;color:var(--body-color);cursor:pointer}
+.footer-note{font-size:13px;color:var(--subheading-color);text-align:center;padding:10px}
+.help-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:720px;max-width:95%;z-index:9999;padding:18px;border-radius:12px;border:1px solid var(--card-border);background:linear-gradient(180deg, rgba(10,10,12,0.95), rgba(10,10,12,0.9));display:none}
+.help-modal.active{display:block}
+.kv{font-size:13px;color:var(--subheading-color);margin-top:6px}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:rgba(255,255,255,0.02);border:1px solid var(--card-border);font-size:13px;color:var(--body-color)}
+.preview-iframe{width:100%;height:720px;border-radius:8px;border:1px solid var(--card-border);background:var(--bg);color:var(--body-color);transform-origin:top left;transform:scale(var(--preview-scale))}
+.resizer{position:absolute;right:-8px;top:0;width:12px;height:100%;cursor:col-resize;display:block}
+.hamburger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:8px;border:1px solid var(--control-border);background:transparent;color:var(--body-color);cursor:pointer}
+.confirm-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10000;background:linear-gradient(180deg,#071224cc,#081224cc);padding:16px;border-radius:10px;border:1px solid var(--card-border);display:none}
+.confirm-modal.active{display:block}
+.mode-toggle{display:flex;gap:8px}
+.mode-toggle button{padding:8px 10px;border-radius:8px;border:1px solid var(--control-border);background:transparent;color:var(--body-color);cursor:pointer}
+.mode-toggle button.active{background:var(--accent);color:var(--bg)}
+.preview-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+input[type="color"]{border:1px solid var(--control-border);padding:6px;height:42px;width:100%;border-radius:8px;background:transparent;color:var(--body-color)}
+.color-hex{padding:6px 8px;border-radius:8px;border:1px solid var(--control-border);background:rgba(255,255,255,0.02);color:var(--body-color);text-align:center}
+.toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));padding:10px 14px;border-radius:8px;border:1px solid var(--card-border);color:var(--body-color);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+/* Make select & options readable across browsers */
+select, select * { color: var(--body-color) !important; background: transparent !important; }
+select option { color: var(--body-color) !important; background: var(--bg) !important; }
+.side-nav button:focus, select:focus { outline: none; box-shadow: 0 8px 20px rgba(0,0,0,0.18); }
+
+@media(max-width:980px){ .admin-shell{flex-direction:column}.grid-2{grid-template-columns:1fr} .admin-sidebar{position:static;height:auto} .preview-iframe{height:420px} }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="admin-topbar glass">
+  <div style="display:flex;gap:12px;align-items:center">
+    <button class="hamburger" id="toggleSidebar" title="Hide / Show sidebar">☰</button>
+    <div class="avatar small logo-bubble" id="logoBubbleAdmin">SY</div>
+    <div>
+      <div style="font-weight:800;color:var(--heading-color)">Site Admin</div>
+      <div class="small">Edit theme, fonts, content & export</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn" id="helpBtn">Help</button>
+    <button class="btn" id="undoBtn" title="Undo last change">Undo</button>
+    <button class="btn primary" id="saveBtn">Save</button>
+    <button class="btn" id="downloadJsonBtn">Download JSON</button>
+    <button class="btn" id="exportAssetsBtn">Export assets</button>
+  </div>
+</div>
+
+<div class="admin-shell">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar glass" id="adminSidebar" aria-label="Admin sidebar">
+    <nav class="side-nav" role="navigation">
+      <button class="active" data-panel="meta">Nav & Meta</button>
+      <button data-panel="theme">Theme</button>
+      <button data-panel="pages">Pages</button>
+      <button data-panel="content">Content & Projects</button>
+      <button data-panel="assets">Assets</button>
+      <button data-panel="advanced">Advanced</button>
+    </nav>
+
+    <!-- Quick actions -->
+    <div style="margin-top:14px;border-top:1px solid var(--card-border);padding-top:12px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--heading-color)">Quick actions</div>
+      <button class="small-action" id="sidebar_apply">Apply (preview)</button>
+      <button class="small-action" id="sidebar_open_site">Open site</button>
+      <button class="small-action" id="sidebar_download_json">Download JSON</button>
+      <button class="small-action" id="sidebar_export_assets">Export assets</button>
+    </div>
+
+    <div style="margin-top:auto">
+      <div class="kv">Status: <span class="badge" id="statusBadge">Ready</span></div>
+    </div>
+
+    <div class="resizer" id="sidebarResizer" title="Drag to resize sidebar"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <div class="grid-2">
+      <!-- Left: Editor -->
+      <div>
+        <!-- Meta panel -->
+        <section class="panel active" id="panel-meta">
+          <div class="section-title">Nav & Meta</div>
+          <div class="field"><label>Site name</label><input id="site_name" class="input" placeholder="Sangam Yadav"></div>
+          <div class="field"><label>Subtitle</label><input id="site_sub" class="input" placeholder="QA Analyst • BCA Student"></div>
+          <div class="field"><label>Tagline</label><input id="site_tag" class="input" placeholder="Turning ideas..."></div>
+          <div class="field"><label>Logo style</label>
+            <select id="logo_style" class="input"><option value="initials">Initials</option><option value="text">Text</option><option value="image">Upload image</option></select></div>
+          <div class="field" id="logoUploadRow" style="display:none"><label>Upload logo</label><input id="logo_file" type="file" accept="image/*"></div>
+          <div class="field"><label>Favicon</label><input id="favicon_file" type="file" accept="image/*"></div>
+          <div class="field"><label>Primary email</label><input id="site_email" class="input" placeholder="your-email@example.com"></div>
+          <div class="field"><label>LinkedIn URL</label><input id="site_linkedin" class="input" placeholder="https://www.linkedin.com/in/..."></div>
+          <div class="field"><label>Resume path</label><input id="site_resume" class="input" placeholder="assets/Sangam_Yadav_Resume.pdf"></div>
+        </section>
+
+        <!-- Theme panel -->
+        <section class="panel" id="panel-theme">
+          <div class="section-title">Theme & Text</div>
+
+          <!-- Edit target: Dark or Light -->
+          <div class="field"><label>Edit theme</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button id="editDark" class="small-action">Edit Dark</button>
+              <button id="editLight" class="small-action">Edit Light</button>
+              <div class="small" style="margin-left:auto">Editing: <span id="editingTarget" class="badge">dark</span></div>
+            </div>
+            <div class="help">Choose which variant to edit. Save variants separately.</div>
+          </div>
+
+          <!-- Visual controls -->
+          <div class="field" style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1"><label>Accent 1</label><input id="accent1_picker" type="color" class="input"></div>
+            <div style="width:130px"><label>Hex</label><input id="accent1_hex_edit" class="input" placeholder="#6be4ff"></div>
+          </div>
+
+          <div class="field" style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1"><label>Accent 2</label><input id="accent2_picker" type="color" class="input"></div>
+            <div style="width:130px"><label>Hex</label><input id="accent2_hex_edit" class="input" placeholder="#6a6aff"></div>
+          </div>
+
+          <div class="field" style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1"><label>Background</label><input id="bg_picker" type="color" class="input"></div>
+            <div style="width:130px"><label>Hex</label><input id="bg_hex_edit" class="input" placeholder="#071224"></div>
+          </div>
+
+          <div class="field"><label>Glow</label><input id="glow" type="color" class="input"></div>
+
+          <!-- Text editing: family, size, color -->
+          <div style="margin-top:10px;border-top:1px solid var(--card-border);padding-top:10px">
+            <div class="field"><label>Font family</label>
+              <select id="font_family" class="input">
+                <option value="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter (system)</option>
+                <option value="Roboto, system-ui, -apple-system, 'Segoe UI', Arial">Roboto</option>
+                <option value="Arial, Helvetica, sans-serif">Arial</option>
+                <option value="Georgia, serif">Georgia (serif)</option>
+                <option value="'Courier New', monospace">Monospace</option>
+              </select>
+            </div>
+
+            <div class="field" style="display:flex;gap:10px;align-items:center">
+              <div style="flex:1"><label>Base font size (px)</label><input id="font_size" type="number" min="12" max="24" class="input" value="16"></div>
+              <div style="width:170px"><label>Text color</label><input id="text_color_picker" type="color" class="input"></div>
+              <div style="width:120px"><label>Hex</label><input id="text_color_hex" class="input" placeholder="#eaf7ff"></div>
+            </div>
+          </div>
+
+          <!-- NEW: Fine-grained token controls -->
+          <div style="margin-top:12px;border-top:1px solid var(--card-border);padding-top:12px">
+            <div class="field" style="display:flex;gap:10px;align-items:center">
+              <div style="flex:1"><label>Heading color</label><input id="heading_color_picker" type="color" class="input"></div>
+              <div style="width:130px"><label>Hex</label><input id="heading_color_hex" class="input" placeholder="#eaf7ff"></div>
+            </div>
+
+            <div class="field" style="display:flex;gap:10px;align-items:center">
+              <div style="flex:1"><label>Subheading color</label><input id="subheading_color_picker" type="color" class="input"></div>
+              <div style="width:130px"><label>Hex</label><input id="subheading_color_hex" class="input" placeholder="#9fb4c6"></div>
+            </div>
+
+            <div class="field" style="display:flex;gap:10px;align-items:center">
+              <div style="flex:1"><label>Body color</label><input id="body_color_picker" type="color" class="input"></div>
+              <div style="width:130px"><label>Hex</label><input id="body_color_hex" class="input" placeholder="#eaf7ff"></div>
+            </div>
+
+            <div style="height:8px"></div>
+
+            <div class="field" style="display:flex;gap:10px;align-items:center">
+              <div style="flex:1"><label>Button text color</label><input id="btn_text_color_picker" type="color" class="input"></div>
+              <div style="width:130px"><label>Hex</label><input id="btn_text_color_hex" class="input" placeholder="#071224"></div>
+            </div>
+
+            <div class="field" style="display:flex;gap:10px;align-items:center">
+              <div style="flex:1"><label>Button background</label><input id="btn_bg_color_picker" type="color" class="input"></div>
+              <div style="width:130px"><label>Hex</label><input id="btn_bg_color_hex" class="input" placeholder="#6be4ff"></div>
+            </div>
+          </div>
+          <!-- END NEW fine-grained controls -->
+
+          <div class="field"><label>Scale (preview zoom)</label><input id="theme_scale" type="range" min="0.6" max="1.5" step="0.01" value="1"><div class="help">Preview zoom only.</div></div>
+
+          <div class="field"><label>Mode (which variant is active)</label>
+            <div class="mode-toggle"><button id="modeDark" class="mode-btn active">Dark</button><button id="modeLight" class="mode-btn">Light</button></div>
+            <div class="help">Mode selects which variant the site should use when published.</div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <button id="themeApplyLive" class="small-action">Apply Live (preview)</button>
+            <button id="themeSaveVariant" class="small-action">Save Variant</button>
+            <button id="themeReset" class="small-action">Reset Variant</button>
+          </div>
+        </section>
+
+        <!-- Pages -->
+        <section class="panel" id="panel-pages">
+          <div class="section-title">Pages (WYSIWYG)</div>
+          <div class="field"><label>About (rich)</label>
+            <div class="toolbar" data-target="about_editor"><button class="tool-btn" data-cmd="bold">B</button><button class="tool-btn" data-cmd="italic">I</button><button class="tool-btn" data-cmd="ul">• List</button><button class="tool-btn" data-cmd="link">Link</button></div>
+            <div id="about_editor" contenteditable="true" class="input" style="min-height:120px;padding:8px;overflow:auto"></div>
+          </div>
+
+          <div class="field"><label>Privacy (rich)</label>
+            <div class="toolbar" data-target="privacy_editor"><button class="tool-btn" data-cmd="bold">B</button><button class="tool-btn" data-cmd="ul">• List</button></div>
+            <div id="privacy_editor" contenteditable="true" class="input" style="min-height:120px;padding:8px;overflow:auto"></div>
+          </div>
+
+          <div class="field"><label>Terms (rich)</label>
+            <div class="toolbar" data-target="terms_editor"><button class="tool-btn" data-cmd="bold">B</button><button class="tool-btn" data-cmd="ul">• List</button></div>
+            <div id="terms_editor" contenteditable="true" class="input" style="min-height:120px;padding:8px;overflow:auto"></div>
+          </div>
+        </section>
+
+        <!-- Content & Projects -->
+        <section class="panel" id="panel-content">
+          <div class="section-title">Content — Skills, Focus & Projects</div>
+          <div class="field"><label>Focus / Short about</label><textarea id="focus_text" class="input" rows="3"></textarea></div>
+          <div class="field"><label>Skills (comma separated)</label><input id="skills_input" class="input"></div>
+          <div class="field"><label>Tools (comma separated)</label><input id="tools_input" class="input"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><div class="section-title" style="margin:0">Projects</div><div><button id="add_project" class="small-action">+ Add</button></div></div>
+          <div class="projects-list card-mini" id="projects_container"></div>
+        </section>
+
+        <!-- Assets -->
+        <section class="panel" id="panel-assets">
+          <div class="section-title">Assets</div>
+          <div class="field"><label>Upload resume (PDF)</label><input id="resume_file" type="file" accept="application/pdf"></div>
+          <div class="field"><label>Upload project image</label><input id="proj_image_file" type="file" accept="image/*"></div>
+          <div class="field"><label>Uploaded (session)</label><div id="uploaded_list" class="small">None</div></div>
+        </section>
+
+        <!-- Advanced -->
+        <section class="panel" id="panel-advanced">
+          <div class="section-title">Advanced</div>
+          <div class="field"><label>Raw JSON</label><textarea id="raw_json" class="input" rows="10"></textarea></div>
+          <div class="actions"><button id="apply_json" class="small-action">Apply JSON</button><button id="restore_defaults" class="small-action">Restore defaults</button></div>
+        </section>
+      </div>
+
+      <!-- Right: Theme preview (only on Theme panel) -->
+      <div>
+        <div class="card-mini">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">Theme Preview</div><div class="small">Visible only on Theme panel</div></div>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+            <div id="previewContainer" style="width:100%;position:relative">
+              <iframe id="theme_preview_iframe" class="preview-iframe" src="index.html" title="Theme live preview"></iframe>
+              <div id="previewResizer" style="position:absolute;right:-8px;top:0;height:100%;width:12px;cursor:ew-resize;"></div>
+            </div>
+          </div>
+          <div style="margin-top:10px" class="help">Use the left Theme controls to edit the variant. Click "Apply Live" to reload preview.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note glass">Admin — Local mode. Export & upload to publish.</div>
+  </main>
+</div>
+
+<!-- Confirm modal -->
+<div class="confirm-modal glass" id="confirmModal" role="dialog" aria-modal="true">
+  <div style="font-weight:700;margin-bottom:8px">Save changes?</div>
+  <div class="small" style="margin-bottom:12px">Save changes to preview (local only), discard changes, or cancel?</div>
+  <div style="display:flex;gap:8px;justify-content:flex-end">
+    <button id="confirmSave" class="btn primary">Save</button>
+    <button id="confirmDiscard" class="btn">Discard</button>
+    <button id="confirmCancel" class="btn">Cancel</button>
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="help-modal glass" id="helpModal">
+  <h3>Quick help</h3>
+  <p class="small">Edit Dark and Light theme variants separately. Use the Text controls to set font family, base size, and text color for each variant. Save variant → Apply Live → Save.</p>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" id="closeHelp">Close</button></div>
+</div>
+
+<!-- Toast placeholder -->
+<div id="toastRoot" style="pointer-events:none;"></div>
+
+<script>
+/* ---------------- Admin JS: theme + text per-variant ---------------- */
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const DEFAULT = {
+  site:{name:"Sangam Yadav",subtitle:"QA Analyst • BCA Student",tagline:"Turning ideas into clean digital experiences",email:"your-email@example.com",linkedin:"https://www.linkedin.com/in/sangamyadavqa",resume:"assets/Sangam_Yadav_Resume.pdf"},
+  skills:["HTML","CSS","JavaScript","Python","Excel","Power BI"],
+  focus:"Quality assurance, test case design, automation basics, data-driven analysis, and communication audits.",
+  tools:["Jira","Postman","Browser DevTools","Excel","Git"],
+  projects:[{id:"p1",title:"Call Audit Dashboard",short:"Coming soon",desc:"Short case note — add later.",images:[]}],
+  pages:{privacy:"<h3>Privacy Policy</h3><p>Template</p>",terms:"<h3>Terms</h3><p>Template</p>",about:"<p>I’m Sangam — QA Analyst...</p>"},
+  theme:{ // variants
+    mode:"dark",
+    dark:{
+      accent1:"#6be4ff",accent2:"#6a6aff",background:"#071224",glow:"#6a6aff",scale:1,
+      textColor:"#eaf7ff",fontFamily:"Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",fontSize:16,
+      headingColor:"#eaf7ff",subheadingColor:"#9fb4c6",bodyColor:"#eaf7ff",btnTextColor:"#071224",btnBgColor:"#6be4ff"
+    },
+    light:{
+      accent1:"#0066cc",accent2:"#00aaff",background:"#f6f8fb",glow:"#00aaff",scale:1,
+      textColor:"#071224",fontFamily:"Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",fontSize:16,
+      headingColor:"#071224",subheadingColor:"#4a4a4a",bodyColor:"#071224",btnTextColor:"#ffffff",btnBgColor:"#00aaff"
+    }
+  }
+};
+let state = JSON.parse(JSON.stringify(DEFAULT));
+let uploaded = {}; let undoStack = [];
+
+/* small helpers */
+function toast(text, ms=2000){ const r=document.getElementById('toastRoot'); const t=document.createElement('div'); t.className='toast'; t.textContent=text; r.appendChild(t); setTimeout(()=>t.remove(), ms); }
+function setStatus(t){ $('#statusBadge').textContent = t; }
+
+/* Sidebar toggle/resizer */
+$('#toggleSidebar').addEventListener('click', ()=>{ const sb=$('#adminSidebar'); if(sb.style.display==='none'){ sb.style.display=''; $('#toggleSidebar').textContent='☰'; }else{ sb.style.display='none'; $('#toggleSidebar').textContent='▣'; }});
+(function(){ const res = $('#sidebarResizer'), sidebar = $('#adminSidebar'); if(!res) return; let dragging=false, startX=0, startW=0; res.addEventListener('mousedown', e=>{ dragging=true; startX=e.clientX; startW=sidebar.offsetWidth; document.body.style.userSelect='none'; }); window.addEventListener('mousemove', e=>{ if(!dragging) return; let newW = startW + (e.clientX - startX); newW = Math.max(160, Math.min(680, newW)); sidebar.style.width = newW + 'px'; }); window.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; document.body.style.userSelect='auto'; } }); })();
+
+/* Panel nav */
+$$('.side-nav button').forEach(btn=> btn.addEventListener('click', ()=>{ 
+  $$('.side-nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  const p = btn.dataset.panel; $$('.panel').forEach(x=>x.classList.remove('active')); $('#panel-'+p).classList.add('active');
+  // iframe visible only on theme panel
+  setTimeout(()=>{ const iframe = $('#theme_preview_iframe'); if(iframe) iframe.style.display = (p==='theme') ? 'block' : 'none'; }, 10);
+}));
+
+/* init: load preview_content -> assets/content.json -> defaults */
+async function init(){
+  const preview = localStorage.getItem('preview_content');
+  if(preview){ try{ state = JSON.parse(preview); }catch(e){ state = JSON.parse(JSON.stringify(DEFAULT)); } populateUI(); applyTheme(false); return; }
+  try{ const res = await fetch('assets/content.json?v='+Date.now(), {cache:'no-store'}); if(res.ok){ state = await res.json(); populateUI(); applyTheme(false); return; } }catch(e){}
+  state = JSON.parse(JSON.stringify(DEFAULT)); populateUI(); applyTheme(false);
+}
+
+/* populate UI */
+function populateUI(){
+  $('#site_name').value = state.site.name || '';
+  $('#site_sub').value = state.site.subtitle || '';
+  $('#site_tag').value = state.site.tagline || '';
+  $('#site_email').value = state.site.email || '';
+  $('#site_linkedin').value = state.site.linkedin || '';
+  $('#site_resume').value = state.site.resume || '';
+
+  // editing target
+  editingTarget = state.theme.mode || 'dark';
+  $('#editingTarget').textContent = editingTarget;
+  loadVariantIntoControls(editingTarget);
+
+  // mode active
+  if(state.theme.mode === 'light'){ $('#modeDark').classList.remove('active'); $('#modeLight').classList.add('active'); } else { $('#modeDark').classList.add('active'); $('#modeLight').classList.remove('active'); }
+
+  $('#about_editor').innerHTML = state.pages.about || '';
+  $('#privacy_editor').innerHTML = state.pages.privacy || '';
+  $('#terms_editor').innerHTML = state.pages.terms || '';
+
+  $('#focus_text').value = state.focus || '';
+  $('#skills_input').value = (state.skills||[]).join(', ');
+  $('#tools_input').value = (state.tools||[]).join(', ');
+
+  renderProjects(); renderUploadedList();
+  $('#raw_json').value = JSON.stringify(state, null, 2);
+
+  applyLogoPreview();
+}
+
+/* variant controls */
+let editingTarget = 'dark';
+function loadVariantIntoControls(target){
+  const v = (state.theme && state.theme[target]) ? state.theme[target] : DEFAULT.theme[target];
+  if(!v) return;
+  $('#accent1_picker').value = v.accent1 || '#6be4ff'; $('#accent1_hex_edit').value = v.accent1 || '#6be4ff';
+  $('#accent2_picker').value = v.accent2 || '#6a6aff'; $('#accent2_hex_edit').value = v.accent2 || '#6a6aff';
+  $('#bg_picker').value = v.background || '#071224'; $('#bg_hex_edit').value = v.background || '#071224';
+  $('#glow').value = v.glow || v.accent2 || '#6a6aff';
+  $('#theme_scale').value = v.scale || 1;
+  $('#font_family').value = v.fontFamily || DEFAULT.theme.dark.fontFamily;
+  $('#font_size').value = v.fontSize || DEFAULT.theme.dark.fontSize;
+  $('#text_color_picker').value = v.textColor || '#eaf7ff'; $('#text_color_hex').value = v.textColor || '#eaf7ff';
+
+  // NEW: fine-grained tokens
+  $('#heading_color_picker').value = v.headingColor || (v.textColor || '#eaf7ff'); $('#heading_color_hex').value = v.headingColor || (v.textColor || '#eaf7ff');
+  $('#subheading_color_picker').value = v.subheadingColor || (v.muted || '#9fb4c6'); $('#subheading_color_hex').value = v.subheadingColor || (v.muted || '#9fb4c6');
+  $('#body_color_picker').value = v.bodyColor || (v.textColor || '#eaf7ff'); $('#body_color_hex').value = v.bodyColor || (v.textColor || '#eaf7ff');
+  $('#btn_text_color_picker').value = v.btnTextColor || '#071224'; $('#btn_text_color_hex').value = v.btnTextColor || '#071224';
+  $('#btn_bg_color_picker').value = v.btnBgColor || (v.accent1 || '#6be4ff'); $('#btn_bg_color_hex').value = v.btnBgColor || (v.accent1 || '#6be4ff');
+
+  $('#editingTarget').textContent = target;
+}
+function saveControlsToVariant(target){
+  state.theme = state.theme || {};
+  state.theme[target] = state.theme[target] || {};
+  state.theme[target].accent1 = $('#accent1_picker').value;
+  state.theme[target].accent2 = $('#accent2_picker').value;
+  state.theme[target].background = $('#bg_picker').value;
+  state.theme[target].glow = $('#glow').value;
+  state.theme[target].scale = parseFloat($('#theme_scale').value) || 1;
+  state.theme[target].fontFamily = $('#font_family').value;
+  state.theme[target].fontSize = parseInt($('#font_size').value,10) || 16;
+  state.theme[target].textColor = $('#text_color_picker').value || $('#text_color_hex').value;
+
+  // NEW: save fine-grained tokens
+  state.theme[target].headingColor = $('#heading_color_picker').value || $('#heading_color_hex').value;
+  state.theme[target].subheadingColor = $('#subheading_color_picker').value || $('#subheading_color_hex').value;
+  state.theme[target].bodyColor = $('#body_color_picker').value || $('#body_color_hex').value;
+  state.theme[target].btnTextColor = $('#btn_text_color_picker').value || $('#btn_text_color_hex').value;
+  state.theme[target].btnBgColor = $('#btn_bg_color_picker').value || $('#btn_bg_color_hex').value;
+}
+
+/* Projects */
+function renderProjects(){
+  const wrap = $('#projects_container'); wrap.innerHTML = '';
+  state.projects = state.projects || [];
+  state.projects.forEach((p, idx) => {
+    const row = document.createElement('div'); row.className = 'project-row';
+    row.innerHTML = `
+      <input class="input proj-title" data-idx="${idx}" value="${escapeHtml(p.title||'')}">
+      <input class="input proj-short" data-idx="${idx}" value="${escapeHtml(p.short||'')}" style="width:140px">
+      <input class="input proj-img" data-idx="${idx}" value="${escapeHtml((p.images&&p.images[0])||'')}" placeholder="assets/image.png" style="width:160px">
+      <button class="small-action proj-up" data-idx="${idx}">↑</button>
+      <button class="small-action proj-down" data-idx="${idx}">↓</button>
+      <button class="small-action proj-remove" data-idx="${idx}">Remove</button>
+      <textarea class="input proj-desc" data-idx="${idx}" placeholder="Description">${escapeHtml(p.desc||'')}</textarea>
+    `;
+    wrap.appendChild(row);
+  });
+
+  $$('.proj-title').forEach(i=> i.oninput = e => { const idx=+e.dataset.idx; state.projects[idx].title = e.target.value; syncRaw(); });
+  $$('.proj-short').forEach(i=> i.oninput = e => { const idx=+e.dataset.idx; state.projects[idx].short = e.target.value; syncRaw(); });
+  $$('.proj-img').forEach(i=> i.oninput = e => { const idx=+e.dataset.idx; state.projects[idx].images = [e.target.value]; syncRaw(); });
+  $$('.proj-desc').forEach(i=> i.oninput = e => { const idx=+e.dataset.idx; state.projects[idx].desc = e.target.value; syncRaw(); });
+
+  $$('.proj-up').forEach(b=> b.onclick = ()=>{ const i=+b.dataset.idx; if(i>0){ pushUndo(); [state.projects[i-1],state.projects[i]]=[state.projects[i],state.projects[i-1]]; renderProjects(); syncRaw(); }}); 
+  $$('.proj-down').forEach(b=> b.onclick = ()=>{ const i=+b.dataset.idx; if(i<state.projects.length-1){ pushUndo(); [state.projects[i+1],state.projects[i]]=[state.projects[i],state.projects[i+1]]; renderProjects(); syncRaw(); }}); 
+  $$('.proj-remove').forEach(b=> b.onclick = ()=>{ const i=+b.dataset.idx; if(confirm('Remove project?')){ pushUndo(); state.projects.splice(i,1); renderProjects(); syncRaw(); }}); 
+}
+
+/* uploaded list */
+function renderUploadedList(){
+  const ul = $('#uploaded_list'); ul.innerHTML = '';
+  const keys = Object.keys(uploaded);
+  if(!keys.length){ ul.textContent = 'None'; return; }
+  keys.forEach(k=>{
+    const it = uploaded[k];
+    const div = document.createElement('div');
+    div.innerHTML = `<span class="badge">${it.name}</span> <button class="small-action" data-k="${k}">Download</button>`;
+    ul.appendChild(div);
+  });
+  $$('#uploaded_list .small-action').forEach(b => b.onclick = (e) => {
+    const k = b.dataset.k; const it = uploaded[k];
+    if(!it) return;
+    if(it.blobUrl){ const a=document.createElement('a'); a.href = it.blobUrl; a.download = it.name; document.body.appendChild(a); a.click(); a.remove(); }
+    else if(it.dataUrl){ const a=document.createElement('a'); a.href = it.dataUrl; a.download = it.name; document.body.appendChild(a); a.click(); a.remove(); }
+  });
+}
+
+/* toolbar */
+$$('.toolbar').forEach(tb => tb.addEventListener('click', ev => {
+  const btn = ev.target.closest('.tool-btn'); if(!btn) return;
+  const cmd = btn.dataset.cmd; const targetId = tb.dataset.target; const editor = document.getElementById(targetId); if(!editor) return;
+  if(cmd === 'bold') document.execCommand('bold');
+  else if(cmd === 'italic') document.execCommand('italic');
+  else if(cmd === 'ul') document.execCommand('insertUnorderedList');
+  else if(cmd === 'link'){ const url = prompt('Enter URL (include https://)'); if(url) document.execCommand('createLink', false, url); }
+  editor.focus(); syncFromEditors();
+}));
+
+/* basic inputs */
+$('#site_name').addEventListener('input', e => { state.site.name = e.target.value; syncRaw(); applyLogoPreview(); });
+$('#site_sub').addEventListener('input', e => { state.site.subtitle = e.target.value; syncRaw(); });
+$('#site_tag').addEventListener('input', e => { state.site.tagline = e.target.value; syncRaw(); });
+$('#site_email').addEventListener('input', e => { state.site.email = e.target.value; syncRaw(); });
+$('#site_linkedin').addEventListener('input', e => { state.site.linkedin = e.target.value; syncRaw(); });
+$('#site_resume').addEventListener('input', e => { state.site.resume = e.target.value; syncRaw(); });
+
+$('#focus_text').addEventListener('input', e => { state.focus = e.target.value; syncRaw(); });
+$('#skills_input').addEventListener('input', e => { state.skills = e.target.value.split(',').map(s=>s.trim()).filter(Boolean); syncRaw(); });
+$('#tools_input').addEventListener('input', e => { state.tools = e.target.value.split(',').map(s=>s.trim()).filter(Boolean); syncRaw(); });
+
+/* color pickers + hex fields (sync) */
+function bindColorPair(pickerSel, hexSel){
+  const pick = document.querySelector(pickerSel), hex = document.querySelector(hexSel);
+  if(!pick || !hex) return;
+  pick.addEventListener('input', (e)=>{ hex.value = e.target.value; });
+  hex.addEventListener('input', (e)=>{ const v = e.target.value.trim(); if(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v)){ pick.value = v; } });
+}
+// existing binds
+bindColorPair('#accent1_picker','#accent1_hex_edit');
+bindColorPair('#accent2_picker','#accent2_hex_edit');
+bindColorPair('#bg_picker','#bg_hex_edit');
+bindColorPair('#text_color_picker','#text_color_hex');
+// NEW binds for fine-grained tokens
+bindColorPair('#heading_color_picker','#heading_color_hex');
+bindColorPair('#subheading_color_picker','#subheading_color_hex');
+bindColorPair('#body_color_picker','#body_color_hex');
+bindColorPair('#btn_text_color_picker','#btn_text_color_hex');
+bindColorPair('#btn_bg_color_picker','#btn_bg_color_hex');
+
+/* theme mode buttons */
+$('#modeDark').addEventListener('click', ()=>{ state.theme.mode='dark'; $('#modeDark').classList.add('active'); $('#modeLight').classList.remove('active'); syncRaw(); applyTheme(true); toast('Mode set to dark'); });
+$('#modeLight').addEventListener('click', ()=>{ state.theme.mode='light'; $('#modeLight').classList.add('active'); $('#modeDark').classList.remove('active'); syncRaw(); applyTheme(true); toast('Mode set to light'); });
+
+/* edit target */
+$('#editDark').addEventListener('click', ()=>{ editingTarget='dark'; loadVariantIntoControls('dark'); $('#editingTarget').textContent='dark'; toast('Editing Dark'); });
+$('#editLight').addEventListener('click', ()=>{ editingTarget='light'; loadVariantIntoControls('light'); $('#editingTarget').textContent='light'; toast('Editing Light'); });
+
+/* save/reset variant */
+$('#themeSaveVariant').addEventListener('click', ()=>{ saveControlsToVariant(editingTarget); syncRaw(); toast(`Saved ${editingTarget} variant`); });
+$('#themeReset').addEventListener('click', ()=>{ if(confirm('Reset this variant to default?')){ state.theme[editingTarget] = JSON.parse(JSON.stringify(DEFAULT.theme[editingTarget])); loadVariantIntoControls(editingTarget); syncRaw(); toast('Variant reset'); }});
+
+/* apply live */
+$('#themeApplyLive').addEventListener('click', ()=>{ saveControlsToVariant(editingTarget); applyTheme(true); toast('Applied to preview'); });
+
+/* file uploads */
+$('#logo_file') && $('#logo_file').addEventListener('change', async e => { const f = e.target.files[0]; if(!f) return; const dataUrl = await fileToDataUrl(f); uploaded.logo = {name:f.name,file:f,dataUrl}; renderUploadedList(); applyLogoPreview(); toast('Logo uploaded'); });
+$('#favicon_file') && $('#favicon_file').addEventListener('change', async e => { const f = e.target.files[0]; if(!f) return; const dataUrl = await fileToDataUrl(f); uploaded.favicon = {name:f.name,file:f,dataUrl}; renderUploadedList(); setFavicon(dataUrl); toast('Favicon uploaded (preview)'); });
+$('#resume_file') && $('#resume_file').addEventListener('change', async e => { const f = e.target.files[0]; if(!f) return; const blobUrl = URL.createObjectURL(f); uploaded.resume = {name:f.name,file:f,blobUrl}; renderUploadedList(); state.site.resume = 'assets/'+f.name; $('#site_resume').value = state.site.resume; syncRaw(); toast('Resume uploaded'); });
+$('#proj_image_file') && $('#proj_image_file').addEventListener('change', async e => { const f = e.target.files[0]; if(!f) return; const dataUrl = await fileToDataUrl(f); const k='img_'+Date.now(); uploaded[k] = {name:f.name,file:f,dataUrl}; renderUploadedList(); toast('Image uploaded'); });
+
+/* helpers */
+function fileToDataUrl(file){ return new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); }); }
+function setFavicon(dataUrl){ let link=document.querySelector("link[rel~='icon']"); if(!link){ link=document.createElement('link'); link.rel='icon'; document.head.appendChild(link); } link.href=dataUrl; }
+
+/* logo preview */
+function applyLogoPreview(){ const style = $('#logo_style').value; const bubble = $('#logoBubbleAdmin'); if(style==='initials'){ bubble.textContent='SY'; bubble.style.background='var(--glass-strong)'; bubble.style.color='var(--heading-color)'; } else if(style==='text'){ bubble.textContent=(state.site.name||'').split(' ')[0]||'SY'; bubble.style.background='var(--glass-strong)'; bubble.style.color='var(--heading-color)'; } else if(style==='image' && uploaded.logo){ bubble.innerHTML=`<img src="${uploaded.logo.dataUrl}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`; } }
+
+/* REPLACED applyTheme: applies tokens and makes admin borders safe in light mode */
+function applyTheme(forceIframe){
+  state.theme = state.theme || {};
+  state.theme.dark = state.theme.dark || DEFAULT.theme.dark;
+  state.theme.light = state.theme.light || DEFAULT.theme.light;
+  const activeMode = state.theme.mode || 'dark';
+  const variant = state.theme[activeMode] || DEFAULT.theme[activeMode];
+
+  // visual tokens
+  const a1 = variant.accent1 || '#6be4ff';
+  const a2 = variant.accent2 || '#6a6aff';
+  const bg  = variant.background || '#071224';
+  const glow = variant.glow || a2;
+  const scale = variant.scale || 1;
+  const textColor = variant.textColor || '#eaf7ff';
+  const fontFamily = variant.fontFamily || DEFAULT.theme.dark.fontFamily;
+  const fontSize = (variant.fontSize || 16) + 'px';
+
+  // fine-grained tokens
+  const headingColor = variant.headingColor || textColor;
+  const subheadingColor = variant.subheadingColor || (variant.muted || '#9fb4c6');
+  const bodyColor = variant.bodyColor || textColor;
+  const btnText = variant.btnTextColor || '#071224';
+  const btnBg = variant.btnBgColor || a1;
+
+  // Compute helpful contrast tokens for light mode
+  const isLight = (bg && bg[0] === '#') ? ( (function(){
+    try{ const h = bg.replace('#',''); const r = parseInt(h.substr(0,2),16), g = parseInt(h.substr(2,2),16), b = parseInt(h.substr(4,2),16); const lum = 0.2126*r + 0.7152*g + 0.0722*b; return lum > 180;
+    }catch(e){ return false; }
+  })() ) : false;
+
+  // border and muted derivations
+  const cardBg = (variant.cardBg || (isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.02)'));
+  const cardBorder = variant.cardBorder || (isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.06)');
+  const controlBorder = variant.controlBorder || (isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.04)');
+  const muted = variant.muted || (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(159,180,198,0.7)');
+  const glassStrong = variant.glassStrong || (isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)');
+
+  // set CSS variables on the admin documentElement so admin UI picks them up
+  const root = document.documentElement;
+  root.style.setProperty('--accent', `linear-gradient(90deg, ${a1}, ${a2})`);
+  root.style.setProperty('--hero-glow', glow);
+  root.style.setProperty('--bg', bg);
+  root.style.setProperty('--text-main', textColor);
+  root.style.setProperty('--font-family', fontFamily);
+  root.style.setProperty('--font-size', fontSize);
+  root.style.setProperty('--heading-color', headingColor);
+  root.style.setProperty('--subheading-color', subheadingColor);
+  root.style.setProperty('--body-color', bodyColor);
+  root.style.setProperty('--btn-text', btnText);
+  root.style.setProperty('--btn-bg', btnBg);
+  root.style.setProperty('--card-bg', cardBg);
+  root.style.setProperty('--card-border', cardBorder);
+  root.style.setProperty('--control-border', controlBorder);
+  root.style.setProperty('--muted', muted);
+  root.style.setProperty('--glass-strong', glassStrong);
+  root.style.setProperty('--preview-scale', scale);
+
+  // add/remove light-mode class for CSS that relies on it
+  if(activeMode === 'light'){ document.documentElement.classList.add('light-mode'); } else { document.documentElement.classList.remove('light-mode'); }
+
+  // persist preview_content for preview iframe / export
+  try{ localStorage.setItem('preview_content', JSON.stringify(state)); }catch(e){ console.warn('could not persist preview_content', e); }
+
+  // reload iframe only when forced or theme panel is active
+  if(forceIframe || $('#panel-theme').classList.contains('active')){
+    try{ $('#theme_preview_iframe').contentWindow.location.reload(); }catch(e){}
+  }
+
+  // ensure admin-specific elements use the variables immediately
+  $$('.card-mini, .panel, .project-row, .input, .small-action, .tool-btn, .side-nav button').forEach(el=>{
+    el.style.borderColor = getComputedStyle(root).getPropertyValue('--card-border').trim() || cardBorder;
+  });
+  $$('.input, input[type="color"]').forEach(el=>{
+    el.style.borderColor = getComputedStyle(root).getPropertyValue('--control-border').trim() || controlBorder;
+    el.style.color = getComputedStyle(root).getPropertyValue('--body-color').trim() || bodyColor;
+    el.style.background = 'transparent';
+  });
+  $('#logoBubbleAdmin') && ($('#logoBubbleAdmin').style.background = getComputedStyle(root).getPropertyValue('--glass-strong') || glassStrong);
+}
+
+/* preview scale */
+function setPreviewScale(v){ document.documentElement.style.setProperty('--preview-scale', v); const iframe = $('#theme_preview_iframe'); if(iframe) iframe.style.transform = `scale(${v})`; if(iframe) iframe.style.transformOrigin = 'top left'; }
+
+ /* undo */
+function pushUndo(){ try{ undoStack.push(JSON.stringify(state)); if(undoStack.length>40) undoStack.shift(); $('#undoBtn').disabled=false; }catch(e){} }
+$('#undoBtn').addEventListener('click', ()=>{ if(!undoStack.length) return alert('Nothing to undo'); const prev = undoStack.pop(); state = JSON.parse(prev); populateUI(); setStatus('Undid change'); toast('Undo applied'); });
+
+/* Save modal */
+$('#saveBtn').addEventListener('click', ()=>{ $('#confirmModal').classList.add('active'); });
+$('#confirmSave').addEventListener('click', ()=>{ pushUndo(); syncFromEditors(); localStorage.setItem('preview_content', JSON.stringify(state)); $('#confirmModal').classList.remove('active'); setStatus('Saved'); toast('Saved preview locally'); });
+$('#confirmDiscard').addEventListener('click', ()=>{ $('#confirmModal').classList.remove('active'); const saved = localStorage.getItem('preview_content'); if(saved){ try{ state = JSON.parse(saved); }catch(e){ state = JSON.parse(JSON.stringify(DEFAULT)); } populateUI(); setStatus('Discarded unsaved changes'); toast('Discarded unsaved changes'); } else { state = JSON.parse(JSON.stringify(DEFAULT)); populateUI(); setStatus('Restored defaults'); toast('Restored defaults'); }});
+$('#confirmCancel').addEventListener('click', ()=>{ $('#confirmModal').classList.remove('active'); });
+
+/* sidebar apply & quick actions */
+$('#sidebar_apply') && $('#sidebar_apply').addEventListener('click', ()=>{ pushUndo(); syncFromEditors(); localStorage.setItem('preview_content', JSON.stringify(state)); try{ $('#theme_preview_iframe').contentWindow.location.reload(); }catch(e){} setStatus('Preview updated'); toast('Preview updated'); });
+$('#sidebar_open_site') && $('#sidebar_open_site').addEventListener('click', ()=> window.open('index.html','_blank'));
+function downloadJson(obj){ const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'content.json'; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove(); setStatus('Downloaded content.json'); toast('Downloaded content.json'); }
+$('#sidebar_download_json') && $('#sidebar_download_json').addEventListener('click', ()=> downloadJson(state));
+$('#downloadJsonBtn') && $('#downloadJsonBtn').addEventListener('click', ()=> downloadJson(state));
+
+function exportAssets(){ const keys = Object.keys(uploaded); if(!keys.length) return alert('No uploaded assets'); keys.forEach(k => { const it = uploaded[k]; if(it.blobUrl){ const a = document.createElement('a'); a.href = it.blobUrl; a.download = it.name; document.body.appendChild(a); a.click(); a.remove(); } else if(it.dataUrl){ const a = document.createElement('a'); a.href = it.dataUrl; a.download = it.name; document.body.appendChild(a); a.click(); a.remove(); } }); setStatus('Exported assets'); toast('Exported assets'); }
+$('#sidebar_export_assets') && $('#sidebar_export_assets').addEventListener('click', exportAssets);
+$('#exportAssetsBtn') && $('#exportAssetsBtn').addEventListener('click', exportAssets);
+
+/* Raw JSON apply & restore */
+$('#apply_json').addEventListener('click', ()=>{ try{ const parsed = JSON.parse($('#raw_json').value); if(!parsed) throw new Error('Invalid JSON'); pushUndo(); state = parsed; populateUI(); setStatus('Applied raw JSON'); toast('Raw JSON applied'); }catch(e){ alert('Invalid JSON: ' + e.message); }});
+$('#restore_defaults').addEventListener('click', ()=>{ if(confirm('Restore default template?')){ pushUndo(); state = JSON.parse(JSON.stringify(DEFAULT)); populateUI(); setStatus('Defaults restored'); toast('Defaults restored'); }});
+
+/* editors sync */
+function syncFromEditors(){ state.pages = state.pages || {}; state.pages.about = $('#about_editor').innerHTML; state.pages.privacy = $('#privacy_editor').innerHTML; state.pages.terms = $('#terms_editor').innerHTML; syncRaw(); }
+function syncRaw(){ $('#raw_json').value = JSON.stringify(state, null, 2); }
+
+/* toolbar wiring done above */
+
+/* help modal */
+$('#helpBtn').addEventListener('click', ()=> $('#helpModal').classList.add('active'));
+$('#closeHelp').addEventListener('click', ()=> $('#helpModal').classList.remove('active'));
+
+/* preview resizer */
+(function(){ const res = $('#previewResizer'), container = $('#previewContainer'); if(!res || !container) return; let dragging=false, startX=0, startW=0; res.addEventListener('mousedown', e=>{ dragging=true; startX=e.clientX; startW=container.offsetWidth; document.body.style.userSelect='none'; }); window.addEventListener('mousemove', e=>{ if(!dragging) return; let newW = Math.max(240, Math.min(window.innerWidth-200, startW + (e.clientX - startX))); container.style.width = newW + 'px'; }); window.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; document.body.style.userSelect='auto'; } }); })();
+
+/* escape helper */
+function escapeHtml(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+
+/* init */
+init().then(()=>{ setStatus('Ready'); toast('Admin loaded'); });
+
+/* file to data url helper (duplicate guard) */
+function fileToDataUrl(file){ return new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); }); }
+
+</script>
+</body>
+</html>

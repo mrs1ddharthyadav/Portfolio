@@ -1,0 +1,95 @@
+{
+  "site": {
+    "name": "Sangam Yadav",
+    "subtitle": "QA Analyst • BCA Student",
+    "tagline": "Turning ideas into clean digital experiences",
+    "email": "your-email@example.com",
+    "linkedin": "https://www.linkedin.com/in/sangamyadavqa",
+    "resume": "assets/Sangam_Yadav_Resume.pdf"
+  },
+  "skills": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "Python",
+    "Excel",
+    "Power BI"
+  ],
+  "focus": "Quality assurance, test case design, automation basics, data-driven analysis, and communication audits.",
+  "tools": [
+    "Jira",
+    "Postman",
+    "Browser DevTools",
+    "Excel",
+    "Git"
+  ],
+  "projects": [
+    {
+      "id": "p1",
+      "title": "Call Audit Dashboard",
+      "short": "Coming soon",
+      "desc": "Short case note — add later.",
+      "images": []
+    },
+    {
+      "id": "pnpb7gk",
+      "title": "New Project",
+      "short": "Coming soon",
+      "desc": "",
+      "images": []
+    }
+  ],
+  "pages": {
+    "privacy": "<h3>Privacy Policy</h3><p>Template</p>",
+    "terms": "<h3>Terms</h3><p>Template</p>",
+    "about": "<p>I’m Sangam — QA Analyst...</p>"
+  },
+  "theme": {
+    "accent1": "#6be4ff",
+    "accent2": "#6a6aff",
+    "background": "#0b0b0e",
+    "glow": "#6a6aff",
+    "mode": "dark",
+    "scale": 1,
+
+    "dark": {
+      "accent1": "#6be4ff",
+      "accent2": "#6a6aff",
+      "background": "#0c0d13",
+      "glow": "#6a6aff",
+      "scale": 1,
+      "fontFamily": "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      "fontSize": 16,
+      "textColor": "#ffffff",
+
+      "headingColor": "#eaf7ff",
+      "subheadingColor": "rgba(200,220,255,0.65)",
+      "bodyColor": "#eaf7ff",
+      "btnText": "#071224",
+      "btnBg": "#6be4ff",
+      "cardBg": "rgba(255,255,255,0.02)",
+      "cardBorder": "rgba(255,255,255,0.06)",
+      "controlBorder": "rgba(255,255,255,0.04)"
+    },
+
+    "light": {
+      "accent1": "#c900cc",
+      "accent2": "#ff0088",
+      "background": "#ebebeb",
+      "glow": "#5de980",
+      "scale": 1,
+      "fontFamily": "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      "fontSize": 16,
+      "textColor": "#000000",
+
+      "headingColor": "#071224",
+      "subheadingColor": "rgba(0,0,0,0.65)",
+      "bodyColor": "#071224",
+      "btnText": "#ffffff",
+      "btnBg": "#0b6fff",
+      "cardBg": "rgba(255,255,255,0.98)",
+      "cardBorder": "rgba(0,0,0,0.12)",
+      "controlBorder": "rgba(0,0,0,0.12)"
+    }
+  }
+}

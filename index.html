@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sangam Yadav — Portfolio</title>
+  <link rel="icon" href="data:;base64,=">
+  <!-- PRE-PAINT: ensure dark default and respect admin preview to avoid flicker -->
+<script>
+(function(){
+  try{
+    const PREVIEW_KEY = 'preview_content';
+    const P_THEME_KEY = 'portfolio-theme';
+    // preview_content takes precedence (admin)
+    const preview = localStorage.getItem(PREVIEW_KEY);
+    if(preview){
+      try{
+        const d = JSON.parse(preview);
+        if(d && d.theme && d.theme.mode === 'light') document.documentElement.classList.add('light-mode');
+        else document.documentElement.classList.remove('light-mode');
+        return;
+      }catch(e){}
+    }
+    // else use stored preference; default to dark
+    const stored = localStorage.getItem(P_THEME_KEY);
+    if(stored === 'light') document.documentElement.classList.add('light-mode');
+    else document.documentElement.classList.remove('light-mode');
+    // ensure default key exists
+    if(!stored) try{ localStorage.setItem(P_THEME_KEY, 'dark'); }catch(e){}
+  }catch(e){}
+})();
+</script>
+
+  <link rel="stylesheet" href="styles.css">
+  <!-- Minimal runtime tokens & light-mode overrides to ensure immediate, consistent styling -->
+  <style>
+    :root{
+      --accent-a: #6be4ff;
+      --accent-b: #6a6aff;
+      --accent: linear-gradient(90deg,var(--accent-a),var(--accent-b));
+      --hero-glow: #6a6aff;
+      --bg: #071224;
+      --card-bg: rgba(255,255,255,0.02);
+      --text-main: #eaf7ff;
+      --muted: rgba(159,180,198,0.7);
+      --font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --font-size-base: 16px;
+      --font-size-heading: 22px;
+      --scale: 1;
+      /* fine-grained text tokens */
+      --heading-color: var(--text-main);
+      --subheading-color: var(--muted);
+      --body-color: var(--text-main);
+      --btn-text: #071224;
+      --btn-bg: var(--accent-a);
+    }
+    /* Light override (when .light-mode class present) */
+    .light-mode{
+      --bg:#f6f8fb;
+      --text-main:#071224;
+      --muted:rgba(0,0,0,0.6);
+      --card-bg: rgba(0,0,0,0.03);
+      --heading-color: var(--text-main);
+      --subheading-color: var(--muted);
+      --body-color: var(--text-main);
+      --btn-text: #ffffff;
+      --btn-bg: var(--accent-b);
+    }
+
+    /* apply tokens to elements that might otherwise blend on white */
+    body { background:var(--bg); color:var(--text-main); font-family:var(--font-family); font-size:var(--font-size-base); transform:scale(var(--scale)); transform-origin:top center; }
+    h1, .name { color: var(--heading-color); }
+    .subtitle, .muted { color: var(--subheading-color); }
+    p, .mini, .muted, .lead { color: var(--body-color); }
+    .btn.primary { color: var(--btn-text) !important; background: var(--btn-bg) !important; border: none; }
+    .card { background: var(--card-bg); }
+  </style>
+</head>
+<body>
+  <!-- FORCE DEFAULT THEME: run BEFORE paint to avoid flicker -->
+  <script>
+    (function(){
+      const PREVIEW_KEY = 'preview_content';
+      const P_THEME_KEY = 'portfolio-theme';
+      const root = document.documentElement;
+
+      const previewRaw = localStorage.getItem(PREVIEW_KEY);
+      const stored = localStorage.getItem(P_THEME_KEY);
+
+      try {
+        if (previewRaw) {
+          const data = JSON.parse(previewRaw);
+          if (data && data.theme && (data.theme.mode === 'light' || data.theme.mode === 'dark')) {
+            // respect explicit preview mode
+            localStorage.setItem(P_THEME_KEY, data.theme.mode === 'light' ? 'light' : 'dark');
+            if (data.theme.mode === 'light') root.classList.add('light-mode'); else root.classList.remove('light-mode');
+          } else {
+            // preview exists but no explicit mode — enforce dark by default unless user stored choice exists
+            if (!stored) localStorage.setItem(P_THEME_KEY, 'dark');
+            root.classList.remove('light-mode');
+          }
+        } else {
+          // no preview: ensure stored or default to dark
+          if (!stored) localStorage.setItem(P_THEME_KEY, 'dark');
+          // apply stored if present, otherwise keep dark
+          if (stored === 'light') root.classList.add('light-mode'); else root.classList.remove('light-mode');
+        }
+      } catch (e) {
+        // safety: force dark
+        localStorage.setItem(P_THEME_KEY, 'dark');
+        root.classList.remove('light-mode');
+      }
+    })();
+  </script>
+
+  <!-- Header -->
+  <header class="site-header glass">
+    <div class="header-inner">
+      <a href="index.html" class="brand" style="text-decoration:none; color:inherit;">
+        <div class="avatar small">SY</div>
+        <div class="brand-text">
+          <div class="brand-name">Sangam Yadav</div>
+          <div class="brand-sub">QA Analyst • BCA Student</div>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a class="nav-link" href="/Portfolio/index.html">Home</a>
+        <a class="nav-link" href="/Portfolio/projects.html">Projects</a>
+        <a class="nav-link" href="/Portfolio/about.html">About</a>
+        <a class="nav-link" href="/Portfolio/contact.html">Contact</a>
+        <a class="btn small primary" id="downloadResumeHeader" href="Sangam_Yadav_Resume.pdf" download>Resume</a>
+        <button id="themeToggleBtn" class="btn small" title="Toggle light / dark" aria-pressed="false">
+          <span id="themeIcon" aria-hidden="true">🌞</span>
+          <span class="mini" style="margin-left:6px">Theme</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- LEFT: Main content -->
+    <section class="glass hero" aria-label="Main hero">
+      <div class="hero-grid" style="position:relative;z-index:2">
+        <div class="avatar" aria-hidden="true" title="Sangam Yadav">SY</div>
+
+        <div class="name-title">
+          <div class="name">Sangam Yadav <span class="muted">• QA Analyst + BCA Student</span></div>
+          <div class="subtitle">Aspiring Developer — QA-focused, product-minded</div>
+
+          <div class="tagline">Turning ideas into clean digital experiences</div>
+
+          <div class="cta-row">
+            <a class="btn primary" href="Sangam_Yadav_Resume.pdf" download>Download Resume</a>
+            <a class="btn" href="#projects" title="Explore Projects">Explore Projects</a>
+            <a class="btn" id="contactBtn" href="/Portfolio/contact.html">Contact</a>
+          </div>
+
+          <div class="meta">Quick: QA • Web • Automation • Call Audit • Communication</div>
+        </div>
+      </div>
+
+      <!-- Skill cards -->
+      <div class="cards" style="z-index:2">
+        <div class="card" style="--i:0">
+          <div style="flex:1">
+            <div style="font-weight:700">Skills</div>
+            <div class="skill-list" aria-hidden="true">
+              <span class="skill-pill">HTML</span>
+              <span class="skill-pill">CSS</span>
+              <span class="skill-pill">JavaScript</span>
+              <span class="skill-pill">Python</span>
+              <span class="skill-pill">Excel</span>
+              <span class="skill-pill">Power BI</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="--i:1">
+          <div style="flex:1">
+            <div style="font-weight:700">Focus Areas</div>
+            <div class="mini muted" style="margin-top:6px">Quality assurance, test case design, automation basics, data-driven analysis, and communication audits.</div>
+          </div>
+        </div>
+
+        <div class="card" style="--i:2">
+          <div style="flex:1">
+            <div style="font-weight:700">Tools</div>
+            <div class="mini muted" style="margin-top:6px">Jira (placeholder), Postman (placeholder), Browser DevTools, Excel, Git (placeholder)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div id="projects" class="cards" style="margin-top:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Projects</div>
+          <!-- <div class="mini muted">Template — add real projects later</div> -->
+        </div>
+
+        <div class="projects-grid">
+          <div class="project glass" style="--i:0">
+            <div class="coming">Coming soon</div>
+            <div class="title">Project 1 — Call Audit Dashboard</div>
+            <div class="mini muted">Short case note — add later.</div>
+          </div>
+
+          <div class="project glass" style="--i:1">
+            <div class="coming">Coming soon</div>
+            <div class="title">Project 2 — Website Template</div>
+            <div class="mini muted">Template ready to replace.</div>
+          </div>
+
+          <div class="project glass" style="--i:2">
+            <div class="coming">Dummy</div>
+            <div class="title">Project 3 — Automation Script</div>
+            <div class="mini muted">Add details when ready.</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: Sidebar -->
+    <aside class="side">
+      <div id="about" class="glass card" style="--i:3">
+        <div style="font-weight:700">About</div>
+        <div class="mini muted" style="margin-top:8px">
+          I’m Sangam — QA Analyst and BCA student exploring web development and automation. I build clean, testable solutions and communicate findings clearly.
+        </div>
+      </div>
+
+      <form id="contact" class="glass contact-form" style="--i:4" onsubmit="return handleContact(event)" aria-label="Contact">
+        <div style="font-weight:700">Contact</div>
+
+        <label for="name">Your name</label>
+        <input id="name" name="name" placeholder="Your name" required />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" required />
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="4" placeholder="Hi Sangam — I’d like to talk about..." required></textarea>
+
+        <div class="contact-actions">
+          <button class="btn primary" type="submit">Send Message</button>
+          <a class="btn" id="emailBtn" href="#" title="Email">Email</a>
+        </div>
+
+        <div style="margin-top:10px" class="mini">Or connect: <a id="linkedin" class="mini" href="https://www.linkedin.com/in/sangamyadavqa" target="_blank" rel="noopener">LinkedIn</a></div>
+      </form>
+
+      <div class="glass card mini" style="--i:5">
+        <div style="font-weight:700">Micro-copy tips</div>
+        <ul style="padding-left:16px;margin:8px 0 0 0">
+          <li>Short headlines (3–6 words)</li>
+          <li>One strong CTA above the fold</li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer glass">
+    <div class="footer-inner">
+      <div class="footer-left">© <span id="year"></span> Sangam Yadav</div>
+      <div class="footer-right">
+        <a class="mini muted" href="/Portfolio/privacy.html">Privacy</a>
+        <a class="mini muted" href="/Portfolio/terms.html">Terms</a>
+        <a class="mini muted" id="linkedinFooter" href="www.linkedin.com/in/sangamyadavqa" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- THEME SCRIPT (keeps design unchanged, makes dark default, supports preview & toggle) -->
+  <script src="script.js"></script>
+  <script>
+    // small safety: ensure theme toggle button present and aria reflects current mode
+    (function(){
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggleBtn');
+      const icon = document.getElementById('themeIcon');
+      const stored = localStorage.getItem('portfolio-theme') || 'dark';
+      if(btn && icon){
+        const isLight = root.classList.contains('light-mode') || stored === 'light';
+        icon.textContent = isLight ? '🌞' : '🌙';
+        btn.setAttribute('aria-pressed', String(isLight));
+      }
+      // set year text if script.js didn't
+      try { document.getElementById('year').textContent = new Date().getFullYear(); }catch(e){}
+    })();
+  </script>
+</body>
+</html>

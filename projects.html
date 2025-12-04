@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Projects — Sangam Yadav</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+    <header class="site-header glass">
+    <div class="header-inner">
+      <a href="index.html" class="brand" style="text-decoration:none; color:inherit;">
+        <div class="avatar small">SY</div>
+        <div class="brand-text">
+          <div class="brand-name">Sangam Yadav</div>
+          <div class="brand-sub">QA Analyst • BCA Student</div>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a class="nav-link" href="/Portfolio/index.html">Home</a>
+        <a class="nav-link" href="/Portfolio/projects.html">Projects</a>
+        <a class="nav-link" href="/Portfolio/about.html">About</a>
+        <a class="nav-link" href="/Portfolio/contact.html">Contact</a>
+        <a class="btn small primary" id="downloadResumeHeader" href="Sangam_Yadav_Resume.pdf" download>Resume</a>
+        <button id="themeToggleBtn" class="btn small" title="Toggle light / dark" aria-pressed="false">
+          <span id="themeIcon" aria-hidden="true">🌞</span>
+          <span class="mini" style="margin-left:6px">Theme</span>
+        </button>
+      </nav>
+    </div>
+    
+  </header>
+
+  <main class="container">
+    <section class="glass hero">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:20px">Projects</div>
+          <div class="muted mini" style="margin-top:6px">A simple index. Click a card to open the case-study template.</div>
+        </div>
+
+      </div>
+
+      <div class="projects-grid" style="margin-top:18px">
+        <!-- Example project cards. Replace with real content. Each links to project-detail.html -->
+        <a class="project glass" href="project-detail.html" style="text-decoration:none;color:inherit">
+          <div class="coming">Coming soon</div>
+          <div class="title">Call Audit Dashboard</div>
+          <div class="mini muted">Short: an interactive dashboard for call quality metrics.</div>
+        </a>
+
+        <a class="project glass" href="project-detail.html" style="text-decoration:none;color:inherit">
+          <div class="coming">Coming soon</div>
+          <div class="title">Website Template</div>
+          <div class="mini muted">Short: a premium portfolio template with glass UI.</div>
+        </a>
+
+        <a class="project glass" href="project-detail.html" style="text-decoration:none;color:inherit">
+          <div class="coming">Dummy</div>
+          <div class="title">Automation Script</div>
+          <div class="mini muted">Short: sample automation for routine QA tasks.</div>
+        </a>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="glass card">
+        <div style="font-weight:700">Project tips</div>
+        <ul class="mini muted" style="margin-top:8px;padding-left:16px">
+          <li>Problem → Approach → Result (keep it short)</li>
+          <li>1–2 screenshots or gifs help a lot</li>
+        </ul>
+      </div>
+
+      <div class="glass card mini">
+        <div style="font-weight:700">Filters</div>
+        <div class="mini muted" style="margin-top:8px">(Static placeholders — later add JS filters)</div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer glass">
+    <div class="footer-inner">
+      <div class="footer-left">© <span id="year"></span> Sangam Yadav</div>
+      <div class="footer-right">
+        <a class="mini muted" href="/Portfolio/privacy.html">Privacy</a>
+        <a class="mini muted" href="/Portfolio/terms.html">Terms</a>
+        <a class="mini muted" id="linkedinFooter" href="www.linkedin.com/in/sangamyadavqa" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
