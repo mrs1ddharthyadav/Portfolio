@@ -372,3 +372,78 @@ input, textarea, select, .input {
   background: var(--btn-bg) !important;
 }
 
+
+
+
+
+
+/* -------- Mobile responsiveness tweaks -------- */
+
+/* 1) Avoid site-level transform scaling on small screens (breaks layout) */
+@media (max-width:600px){
+  html, body { transform: none !important; } /* overrides your --scale transform */
+}
+
+/* 2) Make avatars & images fluid */
+.avatar, .brand .avatar, .avatar.large, .avatar.small {
+  max-width: 100%;
+  height: auto;
+  min-width: 52px; /* smaller minimum for phones */
+  min-height: 52px;
+  font-size: clamp(12px, 4vw, 28px);
+}
+
+/* 3) Project grid: allow smaller cards and auto-fill */
+.projects-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+/* 4) Touch targets & spacing */
+.btn, .btn.small {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 15px;
+}
+
+/* 5) Mobile header: collapse nav into a toggled panel */
+.header-inner { position: relative; }
+.nav { gap:8px; }
+
+/* mobile nav hidden by default; toggled with .nav-open on header */
+@media (max-width:820px){
+  .nav { 
+    display: none;
+    position: absolute;
+    right: 12px;
+    top: 60px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    width: calc(100% - 40px);
+    max-width: 320px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .site-header.nav-open .nav { display: flex; }
+
+  /* show hamburger */
+  #mobileHamburger { display: inline-flex; }
+}
+
+/* ensure hamburger is hidden on desktop */
+#mobileHamburger { display: none; cursor: pointer; border: none; background: transparent; font-size: 20px; }
+
+/* 6) Disable heavy floating animations on touch or when reduced motion */
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .avatar, .card, .project { animation: none !important; transition: none !important; }
+}
+
+/* 7) Small layout polish for very narrow phones */
+@media (max-width:420px){
+  body { padding: 12px; }
+  .container { gap: 16px; }
+  .hero { padding: 20px; }
+}
