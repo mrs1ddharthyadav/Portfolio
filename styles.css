@@ -594,3 +594,54 @@ input, textarea, select, .input {
 @media (min-width:981px) {
   #mobileHamburger { display: none !important; }
 }
+
+
+/* ---- Force-hide desktop nav on <=980px and pin hamburger right ---- */
+@media (max-width:980px) {
+  .header-inner {
+    display:flex !important;
+    flex-direction:row !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+  }
+
+  /* desktop nav must be hidden unless nav-open */
+  .site-header .nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* show nav only when header has nav-open */
+  .site-header.nav-open .nav {
+    display: flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: absolute;
+    right: 14px;
+    top: calc(100% + 12px);
+    width: min(320px, calc(100% - 36px));
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    z-index: 10000;
+  }
+
+  /* place brand left, nav middle (hidden), hamburger right */
+  .brand { order: 1; margin-right: auto; }
+  .site-header .nav { order: 2; }
+  #mobileHamburger { order: 3; display:inline-flex !important; z-index:10005; }
+
+  /* ensure nav links are tap-friendly when opened */
+  .site-header .nav .nav-link {
+    display:block; padding:10px 12px; border-radius:8px; width:100%; text-align:left;
+  }
+}
+
+/* ensure the hamburger is hidden at >980px */
+@media (min-width:981px) {
+  #mobileHamburger { display: none !important; }
+}
