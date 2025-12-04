@@ -352,31 +352,37 @@ async function loadAndApply(){
   loadAndApply();
 })();
 
-/* ---------- Page loader hide logic ---------- */
+//* ---------- Page loader with minimum 2s display ---------- */
 (function(){
   const loader = document.getElementById('pageLoader');
   if(!loader) return;
 
-  // Helper to remove loader with fade
+  let loaded = false;
+  let minTimePassed = false;
+
+  // hide loader function
   function hideLoader() {
-    if (!loader) return;
+    if (!loaded || !minTimePassed) return;
     loader.classList.add('hidden');
-    // completely remove after transition to keep DOM clean
     setTimeout(()=>{ try{ loader.remove(); }catch(e){} }, 600);
   }
 
-  // Hide on full load
-  window.addEventListener('load', function(){
-    // slight delay to allow user to perceive animation (optional)
-    setTimeout(hideLoader, 250);
+  // MINIMUM 2 SECONDS DISPLAY
+  setTimeout(() => {
+    minTimePassed = true;
+    hideLoader();
+  }, 2000);  // ← keeps loader for at least 2 seconds
+
+  // PAGE LOAD COMPLETE
+  window.addEventListener('load', () => {
+    loaded = true;
+    hideLoader();
   });
 
-  // Safety fallback: if load never fires, hide after 6s
-  setTimeout(function(){
-    if(document.body && !loader.classList.contains('hidden')) hideLoader();
-  }, 6000);
-
-  // If you have heavy async content injected via JS, call: document.dispatchEvent(new Event('site-ready'))
-  // to hide the loader earlier (optional).
-  document.addEventListener('site-ready', hideLoader);
+  // safety fallback: if something goes weird, kill loader after 8s
+  setTimeout(() => {
+    if (!loader.classList.contains('hidden')) {
+      loader.classList.add('hidden');
+    }
+  }, 8000);
 })();
