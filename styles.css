@@ -805,3 +805,78 @@ html.loading .site-footer {
 
 /* ensure nav is not semi-transparent when opened */
 .site-header.nav-open .nav { background-color: rgba(8,10,14,0.96) !important; }
+
+/* ---------- MOBILE: tighter header gutters, remove left gap ---------- */
+html, body { width:100%; overflow-x: hidden; } /* prevent accidental horizontal scroll */
+
+@media (max-width:420px) {
+  /* Keep global page padding small and consistent */
+  body {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Make header use nearly full viewport with small symmetric margins */
+  .site-header {
+    max-width: calc(100% - 24px) !important; /* 12px margins each side */
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important; /* slightly smaller radius for small screens */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  }
+
+  /* keep header-inner tight and horizontally aligned */
+  .header-inner {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  /* shrink brand text slightly so it doesn't wrap weirdly */
+  .brand .brand-name { font-size: 15px !important; line-height:1.05 !important; }
+  .brand .brand-sub { font-size: 11px !important; opacity:0.9; }
+
+  /* hamburger: ensure it's flush to the right and vertically centered */
+  #mobileHamburger {
+    margin-left: 8px !important;
+    margin-right: 0 !important;
+    min-width:44px !important;
+    min-height:44px !important;
+    align-self:center !important;
+    position: relative !important;
+    right: 0 !important;
+  }
+
+  /* keep nav hidden until opened, but when opened it should not shift layout */
+  .site-header .nav { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+  .site-header.nav-open .nav {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    visibility: visible !important;
+    display: flex !important;
+    pointer-events: auto !important;
+    width: min(360px, 92vw) !important;
+  }
+
+  /* container should align with header width (prevents hero from being offset) */
+  .container {
+    max-width: calc(100% - 24px) !important;
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* avoid the hero glow or other absolute elements causing horizontal overflow */
+  .hero::before { right: -80px !important; } /* reduce horizontal bleed on tiny screens */
+}
+
+/* small tweak for slightly larger phones / small tablets */
+@media (min-width:421px) and (max-width:580px) {
+  body { padding-left: 14px !important; padding-right: 14px !important; }
+  .site-header { max-width: calc(100% - 28px) !important; margin: 0 auto; padding: 10px 14px !important; border-radius:14px; }
+  .container { max-width: calc(100% - 28px) !important; margin-left:auto; margin-right:auto; }
+}
