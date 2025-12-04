@@ -468,3 +468,65 @@ async function loadAndApply(){
     a.addEventListener('click', () => { closeNav(); });
   });
 })();
+
+/* Robust mobile nav toggle — use in script.js */
+(function(){
+  try {
+    const header = document.querySelector('.site-header');
+    if(!header) { console.warn('mobile-nav: .site-header not found'); return; }
+    const headerInner = header.querySelector('.header-inner');
+    if(!headerInner) { console.warn('mobile-nav: .header-inner not found'); return; }
+
+    // create or reuse
+    let btn = document.getElementById('mobileHamburger');
+    if(!btn){
+      btn = document.createElement('button');
+      btn.id = 'mobileHamburger';
+      btn.type = 'button';
+      btn.className = 'btn small';
+      btn.setAttribute('aria-label','Open navigation');
+      btn.setAttribute('aria-expanded','false');
+      btn.innerHTML = '☰';
+      headerInner.appendChild(btn);
+    }
+
+    const nav = header.querySelector('.nav');
+    if(!nav) { console.warn('mobile-nav: .nav not found inside header'); }
+
+    function openNav(){
+      header.classList.add('nav-open');
+      btn.setAttribute('aria-expanded','true');
+    }
+    function closeNav(){
+      header.classList.remove('nav-open');
+      btn.setAttribute('aria-expanded','false');
+    }
+    function toggleNav(e){
+      if(e && e.stopPropagation) e.stopPropagation();
+      header.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open')));
+    }
+
+    btn.addEventListener('click', toggleNav);
+
+    // close when clicking outside nav or button
+    document.addEventListener('click', (e) => {
+      if(!header.classList.contains('nav-open')) return;
+      const target = e.target;
+      if(nav && (nav.contains(target) || btn.contains(target))) return;
+      closeNav();
+    });
+
+    // close on Escape
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && header.classList.contains('nav-open')) closeNav();
+    });
+
+    // debug: show status in console when toggled
+    header.addEventListener('transitionend', () => {
+      console.log('mobile-nav: header classList:', header.classList.toString());
+    });
+  } catch (err) {
+    console.error('mobile-nav: unexpected error', err);
+  }
+})();
