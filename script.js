@@ -405,3 +405,66 @@ async function loadAndApply(){
     btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open')));
   });
 })();
+
+/* ---------- Mobile nav hamburger toggle (robust) ---------- */
+(function(){
+  const header = document.querySelector('.site-header');
+  if(!header) return;
+
+  // ensure header-inner exists
+  const headerInner = header.querySelector('.header-inner');
+  if(!headerInner) return;
+
+  // create or reuse button
+  let btn = document.getElementById('mobileHamburger');
+  if(!btn){
+    btn = document.createElement('button');
+    btn.id = 'mobileHamburger';
+    btn.type = 'button';
+    btn.className = 'btn small';
+    btn.setAttribute('aria-label', 'Open navigation');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '☰';
+    // append to header-inner (keeps DOM order stable; CSS places to right)
+    headerInner.appendChild(btn);
+  }
+
+  function closeNav(){
+    header.classList.remove('nav-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  function openNav(){
+    header.classList.add('nav-open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+  function toggleNav(){
+    if(header.classList.contains('nav-open')) closeNav(); else openNav();
+  }
+
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleNav();
+  });
+
+  // close when clicking outside the nav panel
+  document.addEventListener('click', (e)=>{
+    if(!header.classList.contains('nav-open')) return;
+    const nav = header.querySelector('.nav');
+    if(!nav) return;
+    // if click is inside nav or on the button, ignore
+    if(nav.contains(e.target) || btn.contains(e.target)) return;
+    closeNav();
+  });
+
+  // close on Escape
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && header.classList.contains('nav-open')) {
+      closeNav();
+    }
+  });
+
+  // Optional: close nav on link click (helps single-page behavior)
+  header.querySelectorAll('.nav a').forEach(a=>{
+    a.addEventListener('click', () => { closeNav(); });
+  });
+})();

@@ -518,3 +518,79 @@ input, textarea, select, .input {
   .brand .brand-name { font-size:16px; }
   .btn { padding:10px 12px; font-size:14px; min-height:44px; }
 }
+
+
+/* ---------- Mobile / tablet header & nav fixes (<=980px) ---------- */
+
+/* Keep header inner row-based and space-between so brand is left and controls are right */
+@media (max-width:980px) {
+  .header-inner {
+    display:flex;
+    flex-direction:row;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+
+  /* Brand stays left */
+  .brand { order: 1; display:flex; align-items:center; gap:12px; }
+
+  /* Place hamburger to the far right */
+  #mobileHamburger {
+    display: inline-flex;            /* visible only on <=980px */
+    order: 3;
+    position: relative;              /* inside header */
+    align-items: center;
+    justify-content: center;
+    min-width:44px;
+    min-height:44px;
+    border-radius:10px;
+    padding:6px 10px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    z-index: 10005;
+  }
+
+  /* Hide the desktop nav; it will be shown when header.nav-open is active */
+  .nav {
+    display: none;
+    position: absolute;
+    right: 14px;
+    top: calc(100% + 12px);
+    width: min(320px, calc(100% - 36px));
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    z-index: 10000;
+  }
+
+  /* Visible nav when header is toggled open */
+  .site-header.nav-open .nav {
+    display: flex;
+  }
+
+  /* Make nav links stack and be easy to tap */
+  .site-header .nav .nav-link {
+    display:block;
+    padding:10px 12px;
+    border-radius:8px;
+    width:100%;
+    text-align:left;
+  }
+
+  /* Ensure the logo/avatar stays on the left visually */
+  .site-header .brand { margin-right: auto; }
+
+  /* Remove any centering that put the hamburger under the brand */
+  .header-inner > * { align-self: center; }
+}
+
+/* Hide hamburger on larger screens (prevent the stray bar at >980px) */
+@media (min-width:981px) {
+  #mobileHamburger { display: none !important; }
+}
