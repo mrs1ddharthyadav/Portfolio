@@ -24,6 +24,8 @@ body{
   flex-direction:column;
   gap:24px;
   min-height:100vh;
+  /* ensure page content doesn't shift when loader-lock is toggled */
+  transition: padding 150ms ease;
 }
 
 /* --- THEME TOKENS (prepend these to your existing styles.css) --- */
@@ -32,7 +34,7 @@ body{
   --accent-b: #6a6aff;
   --accent: linear-gradient(90deg,var(--accent-a),var(--accent-b));
   --hero-glow: #6a6aff;
-  --bg: #FFFF09;
+  --bg: #071224;                /* Revert accidental bright value to dark default */
   --card-bg: rgba(255,255,255,0.02);
   --text-main: #eaf7ff;
   --muted: rgba(159,180,198,0.7);
@@ -43,14 +45,14 @@ body{
   --heading-color: var(--text-main);
   --subheading-color: var(--muted);
   --body-color: var(--text-main);
-  --btn-text: #FFFF09;
+  --btn-text: #071224;
   --btn-bg: var(--accent-a);
 }
 
 /* Light theme override */
 .light-mode{
   --bg:#f6f8fb;
-  --text-main:#FFFF09;
+  --text-main:#071224;
   --muted:rgba(0,0,0,0.6);
   --card-bg: rgba(0,0,0,0.03);
   --heading-color: var(--text-main);
@@ -69,9 +71,6 @@ p, .mini, .muted, .lead{ color:var(--body-color); }
 .btn.primary{ color:var(--btn-text) !important; background: var(--btn-bg) !important; border: none; }
 
 /* --- End of prepend snippet --- */
-
-/* NOTE: your original styles should remain below. If you replaced the full file,
-   copy your existing css rules below this block. */
 
 
 /* Header */
@@ -179,7 +178,7 @@ p, .mini, .muted, .lead{ color:var(--body-color); }
 .cta-row{margin-top:18px;display:flex;gap:12px;align-items:center}
 .btn{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#eaf7ff;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition: transform .18s ease, box-shadow .18s}
 .btn:hover{ transform: translateY(-4px); box-shadow: 0 10px 30px rgba(106,106,255,0.06)}
-.btn.primary{background: var(--accent);background-size:200% 200%;border:none;color:#FFFF09;box-shadow: 0 10px 30px rgba(106,106,255,0.18)}
+.btn.primary{background: var(--accent);background-size:200% 200%;border:none;color:var(--btn-text);box-shadow: 0 10px 30px rgba(106,106,255,0.18)}
 
 /* small meta */
 .meta{margin-top:18px;color:var(--muted);font-size:13px}
@@ -221,7 +220,7 @@ p, .mini, .muted, .lead{ color:var(--body-color); }
   transform:translateZ(0);
 }
 
-/* responsive */
+/* responsive base */
 @media (max-width:980px){
   .container{grid-template-columns: 1fr; padding:0}
   body{padding:20px}
@@ -340,9 +339,6 @@ a.mini, .mini {
   color: #ffffff !important;
 }
 
-
-
-
 /* ---------- Accessibility / contrast fixes (paste at end of styles.css) ---------- */
 
 /* Ensure card/project borders are always visible and use token */
@@ -372,19 +368,23 @@ input, textarea, select, .input {
   background: var(--btn-bg) !important;
 }
 
-/* ---------- Page loader styles ---------- */
+/* ---------- Fullscreen loader (force cover & lock) ---------- */
+/* This replaces the earlier loader block and forces the loader to genuinely cover any viewport */
 .page-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg); /* uses site background token for seamless look */
-  color: var(--text-main);
-  transition: opacity 360ms ease, visibility 360ms ease;
-  opacity: 1;
-  visibility: visible;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(7,18,36,0.82) !important; /* semitransparent overlay to hide page */
+  color: var(--text-main) !important;
+  transition: opacity 360ms ease, visibility 360ms ease !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 /* inner card */
@@ -449,11 +449,17 @@ input, textarea, select, .input {
   .loader-avatar { animation: none; transform: none; }
 }
 
+/* prevent page scroll while loader is active */
+html.loading, body.loading {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
 /* fade-out state (JS will add .hidden to trigger) */
 .page-loader.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* mobile sizing */
@@ -487,7 +493,9 @@ input, textarea, select, .input {
   }
   .site-header { padding: 10px; }
   .header-inner { align-items:center; gap:12px; }
-  .nav { display: none; } /* show hamburger instead (see JS snippet below) */
+  /* nav hidden on small viewports */
+  .nav { display: none; }
+  /* allow script to display hamburger */
   #mobileHamburger { display:inline-flex; } 
   .hero { padding: 20px; }
   .avatar { min-width:64px; min-height:64px; font-size:18px; margin-bottom:6px; }
@@ -681,3 +689,119 @@ input, textarea, select, .input {
     color: var(--body-color) !important;
   }
 }
+
+/* ---------- Force centered site wrapper on tablets/phones (<=981px) ---------- */
+/* Keeps layout centered and avoids left-clinging content */
+@media (max-width:981px) {
+  .site-header, .container, .site-footer {
+    max-width: 1100px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* Reset body padding so container padding determines gutters */
+  body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Make sure hero centers within container */
+  .hero {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Remove sticky side column so content flows centered */
+  .side { position: static !important; width: 100% !important; }
+
+  /* Prevent content from hugging the left edge */
+  .header-inner {
+    display:flex !important;
+    flex-direction:row !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+    gap: 12px;
+  }
+
+  /* small sizing tweaks to avoid overflow */
+  .avatar { min-width:56px !important; min-height:56px !important; }
+  .projects-grid { gap: 12px !important; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; }
+}
+
+/* Centered nav panel under header for small viewports */
+@media (max-width:980px) {
+  .site-header.nav-open .nav {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+    width: min(360px, 92vw) !important;
+    top: calc(100% + 10px) !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45) !important;
+    z-index: 10060 !important;
+  }
+}
+
+/* ---------- Accessibility / reduced-motion polish ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .avatar, .card, .project, .loader-avatar { animation: none !important; transition: none !important; }
+}
+
+/* ---------- End of file ---------- */
+
+
+/* ========== NAV PANEL: opaque, centered, above all ========== */
+@media (max-width:980px) {
+  /* strong opaque panel so page does not show through */
+  .site-header.nav-open .nav {
+    background: color-mix(in srgb, var(--card-bg) 96%, rgba(0,0,0,0.85)); /* opaque panel */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid color-mix(in srgb, var(--card-border) 90%, rgba(0,0,0,0.6));
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    z-index: 11000 !important; /* sit above header and overlay */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(360px, 92vw) !important;
+    padding: 16px !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+  }
+
+  /* nav link visual clarity */
+  .site-header.nav-open .nav .nav-link {
+    color: var(--heading-color) !important;
+    background: transparent !important;
+  }
+
+  /* ensure header isn't translucent over the nav */
+  .site-header { z-index: 10990; }
+}
+
+/* ========== LOADER STRONG OVERRIDE ========== */
+/* Force the loader overlay to cover everything and hide page content */
+.page-loader {
+  background: rgba(7,18,36,0.94) !important; /* darker so nothing shows */
+  z-index: 12000 !important; /* above nav & header */
+}
+
+/* visually hide page content while loader is present (but keep it in DOM for screen readers unless aria-hidden added via JS) */
+html.loading .site-header,
+html.loading main,
+html.loading .site-footer {
+  opacity: 0.06 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  filter: blur(2px) !important;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+/* keep loader inner crisp (no bleed) */
+.page-loader .loader-inner { background: rgba(10,12,16,0.9) !important; }
+
+/* ensure nav is not semi-transparent when opened */
+.site-header.nav-open .nav { background-color: rgba(8,10,14,0.96) !important; }

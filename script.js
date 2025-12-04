@@ -1,7 +1,8 @@
-// script.js (theme renderer for index.html)
-// This script reads localStorage.preview_content (admin preview) and assets/content.json (published).
-// It applies token CSS variables and toggles the .light-mode class for full-site theme switch.
-// It also listens for storage events (admin apply live) and for user toggle clicks.
+// script.js — merged, cleaned, and upgraded
+// - theme renderer + admin preview support
+// - robust mobile nav toggle
+// - loader with minimum 2s + body lock
+// - project injection from preview or assets/content.json
 
 (function(){
   const PREVIEW_KEY = 'preview_content';
@@ -13,46 +14,7 @@
 
   if(yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // ========================
-// NEW toggleDayNight() FUNCTION
-// ========================
-function toggleDayNight() {
-  const PREVIEW_KEY = 'preview_content';
-  const P_THEME_KEY = 'portfolio-theme';
-  const root = document.documentElement;
-  const btn = document.getElementById('dayNightBtn');
-  const icon = document.getElementById('dayNightIcon');
-
-  const isLight = root.classList.contains('light-mode');
-  const nextLight = !isLight;
-
-  // if admin preview exists, update that
-  const previewRaw = localStorage.getItem(PREVIEW_KEY);
-  if (previewRaw) {
-    try {
-      const data = JSON.parse(previewRaw);
-      data.theme = data.theme || {};
-      data.theme.mode = nextLight ? 'light' : 'dark';
-      localStorage.setItem(PREVIEW_KEY, JSON.stringify(data));
-    } catch (e) {
-      console.warn("Preview parse error", e);
-    }
-  } else {
-    // normal user preference
-    localStorage.setItem(P_THEME_KEY, nextLight ? 'light' : 'dark');
-  }
-
-  // apply HTML class for theme
-  if (nextLight) root.classList.add('light-mode');
-  else root.classList.remove('light-mode');
-
-  // apply button UI
-  if (icon) icon.textContent = nextLight ? "🌙 Night" : "🌞 Day";
-  if (btn) btn.setAttribute("aria-pressed", String(nextLight));
-}
-
-
-  // helpers
+  /* ---------------- helpers ---------------- */
   function hexToRgb(hex){
     if(!hex) return null;
     hex = (hex||'').replace('#','').trim();
@@ -71,101 +33,128 @@ function toggleDayNight() {
     if(color.startsWith('rgba(')) return color;
     return color;
   }
-  function isLight(hex){
+
+  /* ---------------- theme token applier (updated) ---------------- */
+  function applyTokensFromVariant(v){
+    if(!v) return;
+    const root = document.documentElement;
+
+    // palette tokens
+    const a1 = v.accent1 || v.accentA || '#6be4ff';
+    const a2 = v.accent2 || v.accentB || '#6a6aff';
+    const bg  = v.background || v.bg || '#071224';
+    const glow = v.glow || a2;
+    const textColor = v.textColor || v.text || '#eaf7ff';
+    const fontFamily = v.fontFamily || v.font || getComputedStyle(root).getPropertyValue('--font-family') || 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial';
+    const fontSize = (typeof v.fontSize !== 'undefined') ? (v.fontSize + 'px') : (getComputedStyle(root).getPropertyValue('--font-size-base') || '16px');
+
+    // map fine-grained tokens (if admin set them) — fall back to sensible defaults
+    const headingColor = v.headingColor || v.heading || textColor;
+    const subheadingColor = v.subheadingColor || v.subheading || (function(){
+      try{
+        if(/^#/.test(textColor)){
+          let hex = textColor.replace('#','');
+          if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+          const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+          return `rgba(${r}, ${g}, ${b}, 0.65)`;
+        }
+      }catch(e){}
+      return 'rgba(159,180,198,0.65)';
+    })();
+
+    const bodyColor = v.bodyColor || textColor;
+    const btnText = v.btnText || v.btnTextColor || '#071224';
+    const btnBg = v.btnBg || a1;
+
+    // write CSS vars (only variables; DO NOT change other CSS rules)
+    root.style.setProperty('--accent-a', a1);
+    root.style.setProperty('--accent-b', a2);
+    root.style.setProperty('--accent', `linear-gradient(90deg, ${a1}, ${a2})`);
+    root.style.setProperty('--hero-glow', glow);
+    root.style.setProperty('--bg', bg);
+    root.style.setProperty('--text-main', textColor);
+    root.style.setProperty('--font-family', fontFamily);
+    root.style.setProperty('--font-size-base', fontSize);
+
+    // fine-grained tokens for elements you asked about
+    root.style.setProperty('--heading-color', headingColor);
+    root.style.setProperty('--subheading-color', subheadingColor);
+    root.style.setProperty('--body-color', bodyColor);
+    root.style.setProperty('--btn-text', btnText);
+    root.style.setProperty('--btn-bg', btnBg);
+
+    // borders / control contrast: choose sensible defaults based on bg luminance
     try{
-      const c = hexToRgb(hex);
-      if(!c) return false;
-      const lum = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;
-      return lum > 180;
-    }catch(e){ return false; }
+      let lightBg = false;
+      if(/^#/.test(bg)){
+        let hex = bg.replace('#','');
+        if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+        const r=parseInt(hex.substr(0,2),16), g=parseInt(hex.substr(2,2),16), b=parseInt(hex.substr(4,2),16);
+        const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+        lightBg = lum > 180;
+      }
+      if(lightBg){
+        root.style.setProperty('--card-bg', v.cardBg || 'rgba(255,255,255,0.98)');
+        root.style.setProperty('--card-border', v.cardBorder || 'rgba(0,0,0,0.12)');
+        root.style.setProperty('--control-border', v.controlBorder || 'rgba(0,0,0,0.12)');
+      } else {
+        root.style.setProperty('--card-bg', v.cardBg || 'rgba(255,255,255,0.02)');
+        root.style.setProperty('--card-border', v.cardBorder || 'rgba(255,255,255,0.06)');
+        root.style.setProperty('--control-border', v.controlBorder || 'rgba(255,255,255,0.04)');
+      }
+    }catch(e){ /* ignore luminance errors */ }
   }
 
-/* REPLACE applyTokensFromVariant(v) in script.js with this function */
-function applyTokensFromVariant(v){
-  if(!v) return;
-  const root = document.documentElement;
-
-  // palette tokens
-  const a1 = v.accent1 || v.accentA || '#6be4ff';
-  const a2 = v.accent2 || v.accentB || '#6a6aff';
-  const bg  = v.background || v.bg || '#071224';
-  const glow = v.glow || a2;
-  const textColor = v.textColor || v.text || '#eaf7ff';
-  const fontFamily = v.fontFamily || v.font || getComputedStyle(root).getPropertyValue('--font-family') || 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial';
-  const fontSize = (typeof v.fontSize !== 'undefined') ? (v.fontSize + 'px') : getComputedStyle(root).getPropertyValue('--font-size-base') || '16px';
-
-  // map fine-grained tokens (if admin set them) — fall back to sensible defaults
-  const headingColor = v.headingColor || v.heading || textColor;
-  const subheadingColor = v.subheadingColor || v.subheading || (function(){
-    try{
-      if(/^#/.test(textColor)){
-        let hex = textColor.replace('#','');
-        if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
-        const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
-        return `rgba(${r}, ${g}, ${b}, 0.65)`;
-      }
-    }catch(e){}
-    return 'rgba(159,180,198,0.65)';
-  })();
-
-  const bodyColor = v.bodyColor || textColor;
-  const btnText = v.btnText || v.btnTextColor || '#071224';
-  const btnBg = v.btnBg || a1;
-
-  // write CSS vars (only variables; DO NOT change other CSS rules)
-  root.style.setProperty('--accent-a', a1);
-  root.style.setProperty('--accent-b', a2);
-  root.style.setProperty('--accent', `linear-gradient(90deg, ${a1}, ${a2})`);
-  root.style.setProperty('--hero-glow', glow);
-  root.style.setProperty('--bg', bg);
-  root.style.setProperty('--text-main', textColor);
-  root.style.setProperty('--font-family', fontFamily);
-  root.style.setProperty('--font-size-base', fontSize);
-
-  // fine-grained tokens for elements you asked about
-  root.style.setProperty('--heading-color', headingColor);
-  root.style.setProperty('--subheading-color', subheadingColor);
-  root.style.setProperty('--body-color', bodyColor);
-  root.style.setProperty('--btn-text', btnText);
-  root.style.setProperty('--btn-bg', btnBg);
-
-  // borders / control contrast: choose sensible defaults based on bg
-  try{
-    let isLight = false;
-    if(/^#/.test(bg)){
-      let hex = bg.replace('#','');
-      if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
-      const r=parseInt(hex.substr(0,2),16), g=parseInt(hex.substr(2,2),16), b=parseInt(hex.substr(4,2),16);
-      const lum = 0.2126*r + 0.7152*g + 0.0722*b;
-      isLight = lum > 180;
-    }
-    if(isLight){
-      root.style.setProperty('--card-bg', v.cardBg || 'rgba(255,255,255,0.98)');
-      root.style.setProperty('--card-border', v.cardBorder || 'rgba(0,0,0,0.12)');
-      root.style.setProperty('--control-border', v.controlBorder || 'rgba(0,0,0,0.12)');
-    } else {
-      root.style.setProperty('--card-bg', v.cardBg || 'rgba(255,255,255,0.02)');
-      root.style.setProperty('--card-border', v.cardBorder || 'rgba(255,255,255,0.06)');
-      root.style.setProperty('--control-border', v.controlBorder || 'rgba(255,255,255,0.04)');
-    }
-  }catch(e){ /* ignore luminance errors */ }
-}
-
-
+  /* ---------------- light-mode setter ---------------- */
   function setLightMode(on){
     if(on) root.classList.add('light-mode'); else root.classList.remove('light-mode');
     if(icon) icon.textContent = on ? '🌞' : '🌙';
     if(toggleBtn) toggleBtn.setAttribute('aria-pressed', String(on));
-    localStorage.setItem(P_THEME_KEY, on ? 'light' : 'dark');
+    try { localStorage.setItem(P_THEME_KEY, on ? 'light' : 'dark'); } catch(e){}
   }
 
+  /* ---------------- toggleDayNight (new) ---------------- */
+  function toggleDayNight() {
+    const btn = document.getElementById('dayNightBtn');
+    const dayIcon = document.getElementById('dayNightIcon');
+    const isLight = root.classList.contains('light-mode');
+    const nextLight = !isLight;
+
+    // if admin preview exists, update that
+    try {
+      const previewRaw = localStorage.getItem(PREVIEW_KEY);
+      if (previewRaw) {
+        const data = JSON.parse(previewRaw);
+        data.theme = data.theme || {};
+        data.theme.mode = nextLight ? 'light' : 'dark';
+        localStorage.setItem(PREVIEW_KEY, JSON.stringify(data));
+      } else {
+        localStorage.setItem(P_THEME_KEY, nextLight ? 'light' : 'dark');
+      }
+    } catch (e) {
+      console.warn("preview toggleDayNight parse error", e);
+    }
+
+    // apply HTML class for theme
+    if (nextLight) root.classList.add('light-mode'); else root.classList.remove('light-mode');
+
+    // apply button UI
+    if (dayIcon) dayIcon.textContent = nextLight ? "🌙 Night" : "🌞 Day";
+    if (btn) btn.setAttribute("aria-pressed", String(nextLight));
+  }
+
+  // If there's a dayNightBtn in the markup, wire it
+  const dayNightBtn = document.getElementById('dayNightBtn');
+  if(dayNightBtn) dayNightBtn.addEventListener('click', toggleDayNight);
+
+  /* ---------------- applyFromData (applies content + theme) ---------------- */
   function applyFromData(data){
     if(!data) return;
-    const storedMode = localStorage.getItem(P_THEME_KEY);
+    const storedMode = (function(){ try{ return localStorage.getItem(P_THEME_KEY); }catch(e){return null;} })();
     const dataMode = data.theme && data.theme.mode;
     let activeMode = dataMode || storedMode || 'dark';
 
-    // If explicit variants present, choose correct one
+    // apply theme/variant
     if(data.theme && (data.theme.dark || data.theme.light)){
       const variant = (activeMode === 'light') ? (data.theme.light || data.theme.dark) : (data.theme.dark || data.theme.light);
       applyTokensFromVariant(variant || {});
@@ -174,8 +163,7 @@ function applyTokensFromVariant(v){
       const v = data.theme || {};
       applyTokensFromVariant({
         accent1: v.accent1, accent2: v.accent2, background: v.background, glow: v.glow,
-        textColor: v.textColor, fontFamily: v.fontFamily, fontSizeBase: v.fontSizeBase,
-        fontSizeHeading: v.fontSizeHeading, scale: v.scale, muted: v.muted,
+        textColor: v.textColor, fontFamily: v.fontFamily, fontSize: v.fontSize,
         headingColor: v.headingColor, subheadingColor: v.subheadingColor,
         bodyColor: v.bodyColor, btnTextColor: v.btnTextColor, btnBgColor: v.btnBgColor,
         cardBg: v.cardBg
@@ -185,15 +173,15 @@ function applyTokensFromVariant(v){
 
     // content: projects
     if(Array.isArray(data.projects)){
-      const grid = document.querySelector('.projects-grid');
+      const grid = document.getElementById('projectsGrid') || document.querySelector('.projects-grid');
       if(grid){
         grid.innerHTML = '';
         data.projects.forEach(p=>{
           const card = document.createElement('div');
-          card.className = 'project glass';
-          card.innerHTML = `<div class="coming">${(p.short||'Coming soon')}</div>
-            <div class="title">${(p.title||'Untitled')}</div>
-            <div class="mini muted">${(p.desc||'')}</div>`;
+          card.className = 'project';
+          card.innerHTML = `<div class="small muted">${p.short || 'Coming soon'}</div>
+                            <div style="font-weight:700;margin-top:6px">${p.title || 'Untitled'}</div>
+                            <div class="muted">${p.desc || ''}</div>`;
           grid.appendChild(card);
         });
       }
@@ -203,115 +191,49 @@ function applyTokensFromVariant(v){
     if(data.site){
       document.querySelectorAll('.brand-name').forEach(n=> n.textContent = data.site.name || n.textContent);
       document.querySelectorAll('.brand-sub').forEach(s=> s.textContent = data.site.subtitle || s.textContent);
-      if(data.site.resume){
-        document.querySelectorAll('[href$="Sangam_Yadav_Resume.pdf"]').forEach(a=>{
-          a.href = data.site.resume;
-          a.setAttribute('download','');
-        });
-      }
-      if(data.site.linkedin){
-        const l = document.getElementById('linkedin');
-        if(l){ l.href = data.site.linkedin; l.target='_blank'; l.rel='noopener'; }
-      }
+      if(data.site.resume) document.querySelectorAll('[href$="Sangam_Yadav_Resume.pdf"]').forEach(a=> { a.href = data.site.resume; a.setAttribute('download',''); });
+      if(data.site.linkedin){ const l = document.getElementById('linkedin') || document.getElementById('linkedinFooter'); if(l){ l.href = data.site.linkedin; l.target='_blank'; l.rel='noopener'; } }
     }
   }
 
-  /* ---------------- loadAndApply() ----------------
-   Replace existing loadAndApply with this.
-   Behavior:
-     1) If localStorage.preview_content exists -> use it (admin preview precedence)
-     2) Else try fetch('assets/content.json') and apply
-     3) Else fallback: use localStorage.portfolio-theme or default 'dark'
-   Only changes theme application and project injection; does not alter HTML structure or CSS rules.
-*/
-async function loadAndApply(){
-  const PREVIEW_KEY = 'preview_content';
-  const P_THEME_KEY = 'portfolio-theme';
-  const root = document.documentElement;
-  const projectsGrid = document.getElementById('projectsGrid');
+  /* ---------------- loadAndApply (preview first, then assets/content.json) ---------------- */
+  async function loadAndApply(){
+    // ensure default preference exists
+    try{ if(!localStorage.getItem(P_THEME_KEY)){ localStorage.setItem(P_THEME_KEY, 'dark'); } }catch(e){}
 
-  // ensure default preference exists (dark)
-  try{ if(!localStorage.getItem(P_THEME_KEY)){ localStorage.setItem(P_THEME_KEY, 'dark'); } }catch(e){}
-
-  // 1) admin preview (authoritative)
-  const preview = localStorage.getItem(PREVIEW_KEY);
-  if(preview){
+    // 1) preview (admin)
     try{
-      const data = JSON.parse(preview);
-      if(data && data.theme){
-        // determine mode and variant
-        const mode = (data.theme.mode) ? data.theme.mode : (localStorage.getItem(P_THEME_KEY) || 'dark');
-        const variant = (mode === 'light') ? (data.theme.light || data.theme.dark) : (data.theme.dark || data.theme.light);
-        applyTokensFromVariant(variant || data.theme);
-        if(mode === 'light') root.classList.add('light-mode'); else root.classList.remove('light-mode');
+      const preview = localStorage.getItem(PREVIEW_KEY);
+      if(preview){
+        const data = JSON.parse(preview);
+        applyFromData(data);
+        return;
       }
-      // apply site text + projects if present
-      if(data.site){
-        document.querySelectorAll('.brand-name').forEach(n=> n.textContent = data.site.name || n.textContent);
-        document.querySelectorAll('.brand-sub').forEach(s=> s.textContent = data.site.subtitle || s.textContent);
-        if(data.site.resume) document.querySelectorAll('[href$="Sangam_Yadav_Resume.pdf"]').forEach(a=> { a.href = data.site.resume; a.setAttribute('download',''); });
-        if(data.site.linkedin){ const l = document.getElementById('linkedin'); if(l){ l.href = data.site.linkedin; l.target='_blank'; l.rel='noopener'; } }
-      }
-      if(Array.isArray(data.projects) && projectsGrid){
-        projectsGrid.innerHTML = '';
-        data.projects.forEach(p => {
-          const card = document.createElement('div');
-          card.className = 'project';
-          card.innerHTML = `<div class="small muted">${p.short || 'Coming soon'}</div>
-                            <div style="font-weight:700;margin-top:6px">${p.title || 'Untitled'}</div>
-                            <div class="muted">${p.desc || ''}</div>`;
-          projectsGrid.appendChild(card);
-        });
-      }
-      return;
     }catch(e){ console.warn('preview_content parse failed', e); }
+
+    // 2) fetch published content
+    try{
+      const res = await fetch('assets/content.json?v=' + Date.now(), { cache: 'no-store' });
+      if(res && res.ok){
+        const data = await res.json();
+        applyFromData(data);
+        return;
+      }
+    }catch(e){ console.warn('failed to fetch content.json', e); }
+
+    // 3) fallback to stored theme preference
+    try{
+      const stored = localStorage.getItem(P_THEME_KEY) || 'dark';
+      if(stored === 'light') root.classList.add('light-mode'); else root.classList.remove('light-mode');
+    }catch(e){}
   }
 
-  // 2) fetch published content.json
-  try{
-    const res = await fetch('assets/content.json?v=' + Date.now(), { cache: 'no-store' });
-    if(res && res.ok){
-      const data = await res.json();
-      if(data && data.theme){
-        const mode = (data.theme.mode) ? data.theme.mode : (localStorage.getItem(P_THEME_KEY) || 'dark');
-        const variant = (mode === 'light') ? (data.theme.light || data.theme.dark) : (data.theme.dark || data.theme.light);
-        applyTokensFromVariant(variant || data.theme);
-        if(mode === 'light') root.classList.add('light-mode'); else root.classList.remove('light-mode');
-      }
-      if(data.site){
-        document.querySelectorAll('.brand-name').forEach(n=> n.textContent = data.site.name || n.textContent);
-        document.querySelectorAll('.brand-sub').forEach(s=> s.textContent = data.site.subtitle || s.textContent);
-        if(data.site.resume) document.querySelectorAll('[href$="Sangam_Yadav_Resume.pdf"]').forEach(a=> { a.href = data.site.resume; a.setAttribute('download',''); });
-        if(data.site.linkedin){ const l = document.getElementById('linkedin'); if(l){ l.href = data.site.linkedin; l.target='_blank'; l.rel='noopener'; } }
-      }
-      if(Array.isArray(data.projects) && projectsGrid){
-        projectsGrid.innerHTML = '';
-        data.projects.forEach(p => {
-          const card = document.createElement('div');
-          card.className = 'project';
-          card.innerHTML = `<div class="small muted">${p.short || 'Coming soon'}</div>
-                            <div style="font-weight:700;margin-top:6px">${p.title || 'Untitled'}</div>
-                            <div class="muted">${p.desc || ''}</div>`;
-          projectsGrid.appendChild(card);
-        });
-      }
-      return;
-    }
-  }catch(e){ console.warn('failed to fetch content.json', e); }
-
-  // 3) fallback: respect stored preference (ensured earlier)
-  try{
-    const stored = localStorage.getItem(P_THEME_KEY) || 'dark';
-    if(stored === 'light') root.classList.add('light-mode'); else root.classList.remove('light-mode');
-  }catch(e){}
-}
-
-
-  // Toggle handler — preserve preview when present
+  /* ---------------- theme toggle handler (preserve preview) ---------------- */
   function toggleTheme(){
     const currentlyLight = root.classList.contains('light-mode');
     const nextLight = !currentlyLight;
     const preview = localStorage.getItem(PREVIEW_KEY);
+
     if(preview){
       try{
         const data = JSON.parse(preview);
@@ -320,11 +242,10 @@ async function loadAndApply(){
         localStorage.setItem(PREVIEW_KEY, JSON.stringify(data));
         const variant = nextLight ? (data.theme.light || data.theme.dark) : (data.theme.dark || data.theme.light);
         if(variant) applyTokensFromVariant(variant);
-      }catch(e){
-        console.warn('preview toggle failed', e);
-      }
+      }catch(e){ console.warn('preview toggle failed', e); }
     } else {
-      localStorage.setItem(P_THEME_KEY, nextLight ? 'light' : 'dark');
+      try{ localStorage.setItem(P_THEME_KEY, nextLight ? 'light' : 'dark'); }catch(e){}
+      // fetch latest content.json and apply variant if present
       fetch('assets/content.json?v=' + Date.now(), {cache:'no-store'})
         .then(r => r.ok ? r.json() : null)
         .then(json => {
@@ -352,160 +273,81 @@ async function loadAndApply(){
   loadAndApply();
 })();
 
-//* ---------- Page loader with minimum 2s display ---------- */
+/* ---------- Page loader with minimum 2s display + body lock ---------- */
 (function(){
   const loader = document.getElementById('pageLoader');
   if(!loader) return;
 
+  const root = document.documentElement;
+  const body = document.body;
   let loaded = false;
   let minTimePassed = false;
 
-  // hide loader function
-  function hideLoader() {
-    if (!loaded || !minTimePassed) return;
+  // apply lock immediately
+  root.classList.add('loading');
+  body.classList.add('loading');
+
+  function removeLockAndHide(){
+    root.classList.remove('loading');
+    body.classList.remove('loading');
     loader.classList.add('hidden');
     setTimeout(()=>{ try{ loader.remove(); }catch(e){} }, 600);
   }
 
-  // MINIMUM 2 SECONDS DISPLAY
-  setTimeout(() => {
+  function hideIfReady(){
+    if(!loaded || !minTimePassed) return;
+    removeLockAndHide();
+  }
+
+  setTimeout(()=>{
     minTimePassed = true;
-    hideLoader();
-  }, 2000);  // ← keeps loader for at least 2 seconds
+    hideIfReady();
+  }, 2000);
 
-  // PAGE LOAD COMPLETE
-  window.addEventListener('load', () => {
+  window.addEventListener('load', ()=>{
     loaded = true;
-    hideLoader();
+    hideIfReady();
   });
 
-  // safety fallback: if something goes weird, kill loader after 8s
-  setTimeout(() => {
-    if (!loader.classList.contains('hidden')) {
-      loader.classList.add('hidden');
-    }
+  // safety fallback
+  setTimeout(()=>{
+    if(!loader.classList.contains('hidden')) removeLockAndHide();
   }, 8000);
-})();
 
-// Mobile nav hamburger toggle (keeps header usable at tablet widths)
-(function(){
-  const header = document.querySelector('.site-header');
-  if(!header) return;
-  let btn = document.getElementById('mobileHamburger');
-  if(!btn){
-    btn = document.createElement('button');
-    btn.id = 'mobileHamburger';
-    btn.setAttribute('aria-label','Open navigation');
-    btn.innerHTML = '☰';
-    btn.className = 'btn small';
-    header.querySelector('.header-inner').appendChild(btn);
-  }
-  btn.addEventListener('click', () => {
-    header.classList.toggle('nav-open');
-    btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open')));
+  // allow site code to indicate readiness for async flows
+  document.addEventListener('site-ready', ()=>{
+    loaded = true;
+    hideIfReady();
   });
 })();
 
-/* ---------- Mobile nav hamburger toggle (robust) ---------- */
-(function(){
-  const header = document.querySelector('.site-header');
-  if(!header) return;
-
-  // ensure header-inner exists
-  const headerInner = header.querySelector('.header-inner');
-  if(!headerInner) return;
-
-  // create or reuse button
-  let btn = document.getElementById('mobileHamburger');
-  if(!btn){
-    btn = document.createElement('button');
-    btn.id = 'mobileHamburger';
-    btn.type = 'button';
-    btn.className = 'btn small';
-    btn.setAttribute('aria-label', 'Open navigation');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = '☰';
-    // append to header-inner (keeps DOM order stable; CSS places to right)
-    headerInner.appendChild(btn);
-  }
-
-  function closeNav(){
-    header.classList.remove('nav-open');
-    btn.setAttribute('aria-expanded', 'false');
-  }
-  function openNav(){
-    header.classList.add('nav-open');
-    btn.setAttribute('aria-expanded', 'true');
-  }
-  function toggleNav(){
-    if(header.classList.contains('nav-open')) closeNav(); else openNav();
-  }
-
-  btn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    toggleNav();
-  });
-
-  // close when clicking outside the nav panel
-  document.addEventListener('click', (e)=>{
-    if(!header.classList.contains('nav-open')) return;
-    const nav = header.querySelector('.nav');
-    if(!nav) return;
-    // if click is inside nav or on the button, ignore
-    if(nav.contains(e.target) || btn.contains(e.target)) return;
-    closeNav();
-  });
-
-  // close on Escape
-  document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape' && header.classList.contains('nav-open')) {
-      closeNav();
-    }
-  });
-
-  // Optional: close nav on link click (helps single-page behavior)
-  header.querySelectorAll('.nav a').forEach(a=>{
-    a.addEventListener('click', () => { closeNav(); });
-  });
-})();
-
-/* Robust mobile nav toggle — use in script.js */
+/* ---------- Robust mobile nav toggle (single, reliable implementation) ---------- */
 (function(){
   try {
     const header = document.querySelector('.site-header');
-    if(!header) { console.warn('mobile-nav: .site-header not found'); return; }
+    if(!header) return;
     const headerInner = header.querySelector('.header-inner');
-    if(!headerInner) { console.warn('mobile-nav: .header-inner not found'); return; }
+    if(!headerInner) return;
 
-    // create or reuse
+    // reuse or create the button
     let btn = document.getElementById('mobileHamburger');
     if(!btn){
       btn = document.createElement('button');
       btn.id = 'mobileHamburger';
       btn.type = 'button';
       btn.className = 'btn small';
-      btn.setAttribute('aria-label','Open navigation');
-      btn.setAttribute('aria-expanded','false');
+      btn.setAttribute('aria-label', 'Open navigation');
+      btn.setAttribute('aria-expanded', 'false');
       btn.innerHTML = '☰';
       headerInner.appendChild(btn);
     }
 
     const nav = header.querySelector('.nav');
-    if(!nav) { console.warn('mobile-nav: .nav not found inside header'); }
+    if(!nav) console.warn('mobile-nav: .nav not found inside header');
 
-    function openNav(){
-      header.classList.add('nav-open');
-      btn.setAttribute('aria-expanded','true');
-    }
-    function closeNav(){
-      header.classList.remove('nav-open');
-      btn.setAttribute('aria-expanded','false');
-    }
-    function toggleNav(e){
-      if(e && e.stopPropagation) e.stopPropagation();
-      header.classList.toggle('nav-open');
-      btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open')));
-    }
+    function openNav(){ header.classList.add('nav-open'); btn.setAttribute('aria-expanded','true'); }
+    function closeNav(){ header.classList.remove('nav-open'); btn.setAttribute('aria-expanded','false'); }
+    function toggleNav(e){ if(e && e.stopPropagation) e.stopPropagation(); header.classList.toggle('nav-open'); btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open'))); }
 
     btn.addEventListener('click', toggleNav);
 
@@ -517,16 +359,48 @@ async function loadAndApply(){
       closeNav();
     });
 
-    // close on Escape
+    // close on Escape key
     document.addEventListener('keydown', (e) => {
       if(e.key === 'Escape' && header.classList.contains('nav-open')) closeNav();
     });
 
-    // debug: show status in console when toggled
-    header.addEventListener('transitionend', () => {
-      console.log('mobile-nav: header classList:', header.classList.toString());
-    });
+    // close when a nav link is clicked
+    header.querySelectorAll('.nav a').forEach(a => a.addEventListener('click', closeNav));
   } catch (err) {
     console.error('mobile-nav: unexpected error', err);
   }
+})();
+
+(function(){
+  const header = document.querySelector('.site-header');
+  if(!header){ console.warn('no .site-header found'); return; }
+  let btn = document.getElementById('mobileHamburger');
+  if(!btn){
+    btn = document.createElement('button');
+    btn.id = 'mobileHamburger';
+    btn.type = 'button';
+    btn.className = 'btn small';
+    btn.setAttribute('aria-label','Open navigation');
+    btn.setAttribute('aria-expanded','false');
+    btn.innerHTML = '☰';
+    const headerInner = header.querySelector('.header-inner') || header;
+    headerInner.appendChild(btn);
+    console.log('mobileHamburger created');
+  } else {
+    console.log('mobileHamburger exists');
+  }
+
+  // remove existing click handlers (defensive)
+  btn.replaceWith(btn.cloneNode(true));
+  btn = document.getElementById('mobileHamburger');
+
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    header.classList.toggle('nav-open');
+    btn.setAttribute('aria-expanded', String(header.classList.contains('nav-open')));
+    console.log('hamburger toggled, nav-open =', header.classList.contains('nav-open'));
+  });
+
+  // quick check
+  console.log('hamburger handler attached');
 })();

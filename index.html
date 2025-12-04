@@ -77,7 +77,19 @@
   </style>
 </head>
 <body>
-  <!-- FORCE DEFAULT THEME: run BEFORE paint to avoid flicker -->
+  <!-- PAGE LOADER: inserted immediately after <body> to avoid paint flicker -->
+  <div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Page is loading">
+    <div class="loader-inner">
+      <div class="avatar loader-avatar" aria-hidden="true">SY</div>
+      <div class="loader-text">
+        <div class="loader-title">Please wait</div>
+        <div class="loader-sub">Page loading…</div>
+      </div>
+    </div>
+  </div>
+  <!-- /PAGE LOADER -->
+
+  <!-- FORCE DEFAULT THEME: run BEFORE paint to avoid flicker (keeps behavior safe) -->
   <script>
     (function(){
       const PREVIEW_KEY = 'preview_content';
@@ -107,7 +119,7 @@
         }
       } catch (e) {
         // safety: force dark
-        localStorage.setItem(P_THEME_KEY, 'dark');
+        try { localStorage.setItem(P_THEME_KEY, 'dark'); }catch(_) {}
         root.classList.remove('light-mode');
       }
     })();
@@ -115,31 +127,27 @@
 
   <!-- Header -->
   <header class="site-header glass">
-    
-
-  </div>
     <div class="header-inner">
       <a href="index.html" class="brand" style="text-decoration:none; color:inherit;">
-        <div class="avatar small">SY</div>
+        <div class="avatar small" aria-hidden="true">SY</div>
         <div class="brand-text">
           <div class="brand-name">Sangam Yadav</div>
           <div class="brand-sub">QA Analyst • BCA Student</div>
         </div>
       </a>
 
-      <nav class="nav">
+      <nav class="nav" role="navigation" aria-label="Main navigation">
         <a class="nav-link" href="/Portfolio/index.html">Home</a>
         <a class="nav-link" href="/Portfolio/projects.html">Projects</a>
         <a class="nav-link" href="/Portfolio/about.html">About</a>
         <a class="nav-link" href="/Portfolio/contact.html">Contact</a>
-        <a class="btn small primary" id="downloadResumeHeader" href="Sangam_Yadav_Resume.pdf" download>Resume</a>
+        <a class="btn small primary" id="downloadResumeHeader" href="assets/Sangam_Yadav_Resume.pdf" download>Resume</a>
         <button id="themeToggleBtn" class="btn small" title="Toggle light / dark" aria-pressed="false">
           <span id="themeIcon" aria-hidden="true">🌞</span>
           <span class="mini" style="margin-left:6px">Theme</span>
         </button>
       </nav>
     </div>
-  
   </header>
 
   <main class="container">
@@ -156,7 +164,7 @@
           <div class="tagline">Turning ideas into clean digital experiences</div>
 
           <div class="cta-row">
-            <a class="btn primary" href="Sangam_Yadav_Resume.pdf" download>Download Resume</a>
+            <a class="btn primary" href="assets/Sangam_Yadav_Resume.pdf" download>Download Resume</a>
             <a class="btn" href="#projects" title="Explore Projects">Explore Projects</a>
             <a class="btn" id="contactBtn" href="/Portfolio/contact.html">Contact</a>
           </div>
@@ -200,10 +208,9 @@
       <div id="projects" class="cards" style="margin-top:20px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div style="font-weight:700">Projects</div>
-          <!-- <div class="mini muted">Template — add real projects later</div> -->
         </div>
 
-        <div class="projects-grid">
+        <div id="projectsGrid" class="projects-grid">
           <div class="project glass" style="--i:0">
             <div class="coming">Coming soon</div>
             <div class="title">Project 1 — Call Audit Dashboard</div>
@@ -267,20 +274,6 @@
 
   </main>
 
-<!-- PAGE LOADER: insert immediately after <body> -->
-<div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Page is loading">
-  <div class="loader-inner">
-    <!-- reuse your avatar markup so the logo looks identical -->
-    <div class="avatar loader-avatar" aria-hidden="true">SY</div>
-    <div class="loader-text">
-      <div class="loader-title">Please wait</div>
-      <div class="loader-sub">Page loading…</div>
-    </div>
-  </div>
-</div>
-<!-- /PAGE LOADER -->
-
-
   <!-- Footer -->
   <footer class="site-footer glass">
     <div class="footer-inner">
@@ -288,7 +281,7 @@
       <div class="footer-right">
         <a class="mini muted" href="/Portfolio/privacy.html">Privacy</a>
         <a class="mini muted" href="/Portfolio/terms.html">Terms</a>
-        <a class="mini muted" id="linkedinFooter" href="www.linkedin.com/in/sangamyadavqa" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="mini muted" id="linkedinFooter" href="https://www.linkedin.com/in/sangamyadavqa" target="_blank" rel="noopener">LinkedIn</a>
       </div>
     </div>
   </footer>
